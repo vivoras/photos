@@ -160,6 +160,13 @@ export default {
 	}
 }
 
+.photos-navigation__title {
+	flex: 1;
+	white-space: nowrap;
+  	overflow: hidden;
+  	text-overflow: ellipsis;
+}
+
 // generate variants based on grid sizes
 // TODO: use mixins/GridSizes as soon as node-sass supports it
 // needs node-sass 5.0 (with libsass 3.6)
