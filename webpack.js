@@ -80,4 +80,6 @@ webpackConfig.plugins.push(
 	})
 )
 
+webpackConfig.entry.dashboard = path.resolve(path.join('src', 'dashboard.js'))
+
 module.exports = webpackConfig

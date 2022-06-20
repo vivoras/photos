@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace OCA\Photos\AppInfo;
 
+use OCA\Photos\Dashboard\OnThisDay;
 use OCA\DAV\Connector\Sabre\Principal;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
@@ -61,6 +62,7 @@ class Application extends App implements IBootstrap {
 	}
 
 	public function register(IRegistrationContext $context): void {
+        $context->registerDashboardWidget(OnThisDay::class);
 		/** Register $principalBackend for the DAV collection */
 		$context->registerServiceAlias('principalBackend', Principal::class);
 		$context->registerEventListener(NodeDeletedEvent::class, MoveToTrashListener::class);
