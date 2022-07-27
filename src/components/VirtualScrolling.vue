@@ -70,21 +70,22 @@ export default {
 			type: Number,
 			default: 6,
 		},
-
 		willBeVisibleWindowRatio: {
 			type: Number,
 			default: 4,
 		},
-
 		visibleWindowRatio: {
 			type: Number,
 			// A little bit more than the container's height to include items at its edges.
 			default: 0,
 		},
-
 		bottomBufferRatio: {
 			type: Number,
 			default: 5,
+		},
+		scrollToKey: {
+			type: String,
+			default: '',
 		},
 	},
 
@@ -114,14 +115,14 @@ export default {
 			const visibleWindow = containerHeight * this.visibleWindowRatio
 
 			let currentRowTopDistanceFromTop = 0
-			let currentBottomTopDistanceFromTop = 0
+			let currentRowBottomDistanceFromTop = 0
 
 			// Compute whether a row should be included in the DOM (shouldRender)
 			// And how visible the row is.
 			return this.rows
 				.reduce((visibleRows, row) => {
-					currentRowTopDistanceFromTop = currentBottomTopDistanceFromTop
-					currentBottomTopDistanceFromTop += row.height
+					currentRowTopDistanceFromTop = currentRowBottomDistanceFromTop
+					currentRowBottomDistanceFromTop += row.height
 
 					if (currentRowTopDistanceFromTop < scrollPosition - shouldRenderedWindow || scrollPosition + containerHeight + shouldRenderedWindow < currentRowTopDistanceFromTop) {
 						return visibleRows
@@ -135,8 +136,7 @@ export default {
 						if (scrollPosition - visibleWindow < currentRowTopDistanceFromTop && currentRowTopDistanceFromTop < scrollPosition + containerHeight + visibleWindow) {
 							visibility = 'visible'
 						}
-
-						if (scrollPosition - visibleWindow < currentBottomTopDistanceFromTop && currentBottomTopDistanceFromTop < scrollPosition + containerHeight + visibleWindow) {
+						if (scrollPosition - visibleWindow < currentRowBottomDistanceFromTop && currentRowBottomDistanceFromTop < scrollPosition + containerHeight + visibleWindow) {
 							visibility = 'visible'
 						}
 					}
@@ -227,6 +227,18 @@ export default {
 			// If the height of added rows is under `bottomBufferRatio`, `isNearBottom` will still be true so we need more content.
 			if (this.isNearBottom) {
 				this.$emit('need-content')
+			}
+		},
+
+		scrollToKey(key) {
+			let currentRowTopDistanceFromTop = 0
+			for (const row of this.rows) {
+				if (row.key === key) {
+					this.$refs.container.scrollTo({ top: currentRowTopDistanceFromTop, behavior: 'smooth' })
+					return
+				}
+
+				currentRowTopDistanceFromTop += row.height
 			}
 		},
 	},

@@ -44,9 +44,7 @@ const mutations = {
 				return
 			}
 			if (file.fileid >= 0) {
-				if (file.fileMetadataSize) {
-					file.fileMetadataSizeParsed = JSON.parse(file.fileMetadataSize.replace(/&quot;/g, '"'))
-				}
+				file.fileMetadataSizeParsed = JSON.parse(file.fileMetadataSize?.replace(/&quot;/g, '"') ?? '{}')
 				file.fileMetadataSizeParsed.width = file.fileMetadataSizeParsed?.width ?? 256
 				file.fileMetadataSizeParsed.height = file.fileMetadataSizeParsed?.height ?? 256
 			}
@@ -165,7 +163,10 @@ const actions = {
 	deleteFiles(context, fileIds) {
 		const semaphore = new Semaphore(5)
 
-		const files = fileIds.map(fileId => state.files[fileId]).reduce((files, file) => ({ ...files, [file.fileid]: file }), {})
+		const files = fileIds
+			.map(fileId => state.files[fileId])
+			.reduce((files, file) => ({ ...files, [file.fileid]: file }), {})
+
 		fileIds.forEach(fileId => context.commit('deleteFile', fileId))
 
 		const promises = fileIds

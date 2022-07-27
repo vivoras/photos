@@ -81,7 +81,7 @@ import { getCurrentUser } from '@nextcloud/auth'
 import { CheckboxRadioSwitch } from '@nextcloud/vue'
 
 import UserConfig from '../mixins/UserConfig.js'
-import SemaphoreWithPriority from '../utils/semaphoreWithPriority.js'
+import Semaphore from '../utils/semaphoreWithPriority.js'
 
 export default {
 	name: 'File',
@@ -91,6 +91,7 @@ export default {
 	mixins: [UserConfig],
 	inheritAttrs: false,
 	props: {
+		// TODO: rename item to file
 		item: {
 			type: Object,
 			required: true,
@@ -108,7 +109,7 @@ export default {
 			required: true,
 		},
 		semaphore: {
-			type: SemaphoreWithPriority,
+			type: Semaphore,
 			required: true,
 		},
 	},
@@ -231,9 +232,10 @@ export default {
 .file-container {
 	background: lightgray;
 	position: relative;
-	border: 2px solid white; // Use border so create a separation between images.
 	height: 100%;
 	width: 100%;
+	border: 2px solid var(--color-main-background); // Use border so create a separation between images.
+	box-sizing: border-box;
 
 	// Selection border.
 	&.selected, &:focus-within {

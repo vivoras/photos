@@ -29,6 +29,7 @@ import areTagsInstalled from '../services/AreTagsInstalled.js'
 import { imageMimes, videoMimes } from '../services/AllowedMimes.js'
 
 const Albums = () => import('../views/Albums')
+const AlbumContent = () => import('../views/AlbumContent')
 const Tags = () => import('../views/Tags')
 const Timeline = () => import('../views/Timeline')
 
@@ -54,23 +55,19 @@ export default new Router({
 	mode: 'history',
 	// if index.php is in the url AND we got this far, then it's working:
 	// let's keep using index.php in the url
-	base: generateUrl('/apps/photos', ''),
+	base: generateUrl('/apps/photos'),
 	linkActiveClass: 'active',
 	routes: [
 		{
 			path: '/',
 			component: Timeline,
 			name: 'all_media',
-			props: route => ({
-				rootTitle: t('photos', 'All media'),
-			}),
 		},
 		{
 			path: '/photos',
 			component: Timeline,
 			name: 'photos',
 			props: route => ({
-				rootTitle: t('photos', 'Photos'),
 				mimesType: imageMimes,
 			}),
 		},
@@ -79,19 +76,20 @@ export default new Router({
 			component: Timeline,
 			name: 'videos',
 			props: route => ({
-				rootTitle: t('photos', 'Videos'),
 				mimesType: videoMimes,
 			}),
 		},
 		{
-			path: '/albums/:path*',
+			path: '/albums',
 			component: Albums,
 			name: 'albums',
+		},
+		{
+			path: '/albums/:albumId*',
+			component: AlbumContent,
+			name: 'albumContent',
 			props: route => ({
-				path: parsePathParams(route.params.path),
-				// if path is empty
-				isRoot: !route.params.path,
-				rootTitle: t('photos', 'Albums'),
+				albumId: route.params.albumId,
 			}),
 		},
 		{
@@ -122,7 +120,6 @@ export default new Router({
 			component: Timeline,
 			name: 'favorites',
 			props: route => ({
-				rootTitle: t('photos', 'Favorites'),
 				onlyFavorites: true,
 			}),
 		},

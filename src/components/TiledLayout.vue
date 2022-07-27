@@ -1,5 +1,5 @@
 <!--
- - @copyright Copyright (c) 2019 Louis Chemineau <louis@chmn.me>
+ - @copyright Copyright (c) 2022 Louis Chemineau <louis@chmn.me>
  -
  - @author Louis Chemineau <louis@chmn.me>
  -
@@ -47,6 +47,10 @@ export default {
 			type: Array,
 			required: true,
 		},
+		baseHeight: {
+			type: Number,
+			default: 200,
+		},
 	},
 
 	data() {
@@ -58,9 +62,9 @@ export default {
 	},
 
 	computed: {
-		/** @return {import('../services/TiledLayout').TiledRow[]} */
+		/** @return {import('../services/TiledLayout.js').TiledRow[]} */
 		rows() {
-			return splitItemsInRows(this.items, this.containerWidth)
+			return splitItemsInRows(this.items, this.containerWidth, this.baseHeight)
 		},
 	},
 
@@ -84,17 +88,11 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.photos-header {
-	height: 50px;
-}
-
 .tiled-container {
-	margin: 0 24px;
+	height: 100%;
 
 	.tiled-row {
 		display: flex;
-		justify-content: space-around;
-		width: fit-content; // Prevent solitary image to be rendered in the middle because of the flex layout.
 	}
 }
 </style>

@@ -1,7 +1,7 @@
 /**
- * @copyright Copyright (c) 2019 John Molakvoæ <skjnldsv@protonmail.com>
+ * @copyright Copyright (c) 2019 Louis Chemineau <louis@chmn.me>
  *
- * @author John Molakvoæ <skjnldsv@protonmail.com>
+ * @author Louis Chemineau <louis@chmn.me>
  *
  * @license AGPL-3.0-or-later
  *
@@ -20,22 +20,15 @@
  *
  */
 
-import Vue from 'vue'
-import Vuex, { Store } from 'vuex'
+import SemaphoreWithPriority from '../utils/semaphoreWithPriority.js'
 
-import files from './files.js'
-import albums from './albums.js'
-import folders from './folders.js'
-import systemtags from './systemtags.js'
+export default {
+	name: 'SemaphoreMixin',
 
-Vue.use(Vuex)
-export default new Store({
-	modules: {
-		files,
-		folders,
-		albums,
-		systemtags,
+	data() {
+		return {
+			semaphore: new SemaphoreWithPriority(30),
+			semaphoreSymbol: null,
+		}
 	},
-
-	strict: process.env.NODE_ENV !== 'production',
-})
+}
