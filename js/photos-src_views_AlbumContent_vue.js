@@ -97,7 +97,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
 
 
 
@@ -452,12 +451,12 @@ __webpack_require__.r(__webpack_exports__);
   },
   methods: {
     async fetchAlbumContent() {
-      const files = await this.fetchFiles(this.album.name);
+      const fileIds = await this.fetchFiles(this.album.name);
 
-      if (files.length > 0) {
+      if (fileIds.length > 0) {
         this.$store.commit('addFilesToAlbum', {
           albumId: this.albumId,
-          fileIdsToAdd: files.map(file => file.fileid)
+          fileIdsToAdd: fileIds
         });
       }
     },
@@ -544,7 +543,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, ".album-container[data-v-36505f44] {\n  height: calc(100vh - var(--header-height));\n  display: flex;\n  flex-direction: column;\n  padding: 8px 64px;\n}\n.album-container .empty-album[data-v-36505f44] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n}\n.album-container .empty-album__button[data-v-36505f44] {\n  margin-top: 32px;\n}\n.album-container .album-header[data-v-36505f44] {\n  display: flex;\n  min-height: 60px;\n  align-items: center;\n  justify-content: space-between;\n}\n.album-container .album-header .album-title[data-v-36505f44] {\n  min-width: 300px;\n}\n.album-container .album-header .album-title .album-location[data-v-36505f44] {\n  margin-left: -4px;\n  display: flex;\n  color: var(--color-text-lighter);\n}\n.album-container .album-header .album-actions[data-v-36505f44] {\n  display: flex;\n  align-items: baseline;\n}\n.album-container .album-header .album-actions button[data-v-36505f44] {\n  margin-left: 16px;\n}\n.album-container .album-photos[data-v-36505f44] {\n  margin-top: 16px;\n  height: 100%;\n  min-height: 0;\n}\n.empty-content-with-illustration[data-v-36505f44]  .empty-content__icon {\n  width: 200px;\n  height: 200px;\n}\n.empty-content-with-illustration[data-v-36505f44]  .empty-content__icon svg {\n  width: 200px;\n  height: 200px;\n}", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, ".album-container[data-v-36505f44] {\n  display: flex;\n  flex-direction: column;\n  padding: 8px 64px;\n}\n.album-container .empty-album[data-v-36505f44] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n}\n.album-container .empty-album__button[data-v-36505f44] {\n  margin-top: 32px;\n}\n.album-container .album-header[data-v-36505f44] {\n  display: flex;\n  min-height: 60px;\n  align-items: center;\n  justify-content: space-between;\n}\n.album-container .album-header .album-title[data-v-36505f44] {\n  min-width: 300px;\n}\n.album-container .album-header .album-title .album-location[data-v-36505f44] {\n  margin-left: -4px;\n  display: flex;\n  color: var(--color-text-lighter);\n}\n.album-container .album-header .album-actions[data-v-36505f44] {\n  display: flex;\n  align-items: baseline;\n}\n.album-container .album-header .album-actions button[data-v-36505f44] {\n  margin-left: 16px;\n}\n.album-container .album-photos[data-v-36505f44] {\n  margin-top: 16px;\n  height: 100%;\n  min-height: 0;\n}\n.empty-content-with-illustration[data-v-36505f44]  .empty-content__icon {\n  width: 200px;\n  height: 200px;\n}\n.empty-content-with-illustration[data-v-36505f44]  .empty-content__icon svg {\n  width: 200px;\n  height: 200px;\n}", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -947,12 +946,12 @@ var render = function () {
           attrs: {
             "file-ids-by-section": _vm.filesListByMonth,
             sections: _vm.monthsList,
-            loading: _vm.loadingFiles && _vm.nbFetchedFiles !== 0,
+            loading: _vm.loadingFiles && _vm.fetchedFileIds.length !== 0,
             "base-height": 100,
             "section-header-height": 50,
             "scroll-to-section": _vm.targetMonth,
           },
-          on: { "need-content": _vm.fetchFiles },
+          on: { "need-content": _vm.fetchedFileIds },
           scopedSlots: _vm._u([
             {
               key: "default",
@@ -980,10 +979,6 @@ var render = function () {
                         ]
                       )
                     : _c("File", {
-                        style: {
-                          width: height * file.ratio + "px",
-                          height: height + "px",
-                        },
                         attrs: {
                           item: _vm.files[file.id],
                           "allow-selection": true,
@@ -1153,41 +1148,31 @@ var render = function () {
         { staticClass: "album-container" },
         [
           _c("div", { staticClass: "album-header" }, [
-            _c(
-              "div",
-              { staticClass: "album-header-left" },
-              [
-                _c("div", { staticClass: "album-title" }, [
-                  _vm.album !== undefined
-                    ? _c("b", { staticClass: "album-name" }, [
-                        _vm._v(
-                          "\n\t\t\t\t\t" +
-                            _vm._s(_vm.album.name || "All") +
-                            "\n\n\t\t\t\t"
-                        ),
-                      ])
-                    : _vm._e(),
-                  _vm._v(" "),
-                  _vm.album !== undefined
-                    ? _c(
-                        "div",
-                        { staticClass: "album-location" },
-                        [
-                          _c("MapMarker"),
-                          _vm._v(_vm._s(_vm.album.location) + "\n\t\t\t\t"),
-                        ],
-                        1
-                      )
-                    : _vm._e(),
-                ]),
-                _vm._v(" "),
-                (_vm.loadingAlbums || _vm.loadingFiles) &&
-                _vm.nbFetchedFiles !== 0
-                  ? _c("Loader")
+            _c("div", { staticClass: "album-header-left" }, [
+              _c("div", { staticClass: "album-title" }, [
+                _vm.album !== undefined
+                  ? _c("b", { staticClass: "album-name" }, [
+                      _vm._v(
+                        "\n\t\t\t\t\t" +
+                          _vm._s(_vm.album.name || "All") +
+                          "\n\n\t\t\t\t"
+                      ),
+                    ])
                   : _vm._e(),
-              ],
-              1
-            ),
+                _vm._v(" "),
+                _vm.album !== undefined
+                  ? _c(
+                      "div",
+                      { staticClass: "album-location" },
+                      [
+                        _c("MapMarker"),
+                        _vm._v(_vm._s(_vm.album.location) + "\n\t\t\t\t"),
+                      ],
+                      1
+                    )
+                  : _vm._e(),
+              ]),
+            ]),
             _vm._v(" "),
             _vm.album !== undefined
               ? _c(
@@ -1408,10 +1393,9 @@ var render = function () {
             ? _c("FilesListViewer", {
                 staticClass: "album-photos",
                 attrs: {
-                  "files-ids": _vm.albumFiles,
-                  loading:
-                    (_vm.loadingFiles || _vm.loadingAlbums) &&
-                    _vm.nbFetchedFiles !== 0,
+                  "use-window": true,
+                  "file-ids": _vm.albumFiles,
+                  loading: _vm.loadingFiles || _vm.loadingAlbums,
                 },
                 on: { "need-content": _vm.fetchAlbumContent },
                 scopedSlots: _vm._u(
@@ -1423,10 +1407,6 @@ var render = function () {
                         var height = ref.height
                         var visibility = ref.visibility
                         return _c("File", {
-                          style: {
-                            width: height * file.ratio + "px",
-                            height: height + "px",
-                          },
                           attrs: {
                             item: _vm.files[file.id],
                             "allow-selection": true,
@@ -1435,7 +1415,7 @@ var render = function () {
                             semaphore: _vm.semaphore,
                           },
                           on: {
-                            "on-click": _vm.openViewer,
+                            click: _vm.openViewer,
                             "select-toggled": _vm.onFileSelectToggle,
                           },
                         })
@@ -1444,7 +1424,7 @@ var render = function () {
                   ],
                   null,
                   false,
-                  1536688757
+                  1840423849
                 ),
               })
             : _vm._e(),
@@ -1515,4 +1495,4 @@ module.exports = "<svg id=\"3ecf9745-447a-4766-8a86-6837975429df\" data-name=\"L
 /***/ })
 
 }]);
-//# sourceMappingURL=photos-src_views_AlbumContent_vue.js.map?v=975647e77b910d24236f
+//# sourceMappingURL=photos-src_views_AlbumContent_vue.js.map?v=6a596da581eb65fdf5b6

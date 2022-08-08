@@ -49,7 +49,7 @@
 					</div>
 				</div>
 
-				<Loader v-if="(loadingAlbums || loadingFiles) && fetchedFileIds.length !== 0" />
+				<!-- <Loader v-if="(loadingAlbums || loadingFiles) && fetchedFileIds.length !== 0" /> -->
 			</div>
 			<div v-if="album !== undefined" class="album-actions">
 				<Button v-if="album.itemCount !== 0"
@@ -110,7 +110,7 @@
 			class="album-photos"
 			:use-window="true"
 			:file-ids="albumFiles"
-			:loading="(loadingFiles || loadingAlbums) && fetchedFileIds.length !== 0"
+			:loading="loadingFiles || loadingAlbums"
 			@need-content="fetchAlbumContent">
 			<File slot-scope="{file, height, visibility}"
 				:item="files[file.id]"
@@ -262,7 +262,6 @@ export default {
 </script>
 <style lang="scss" scoped>
 .album-container {
-	height: calc(100vh - var(--header-height));
 	display: flex;
 	flex-direction: column;
 	padding: 8px 64px;

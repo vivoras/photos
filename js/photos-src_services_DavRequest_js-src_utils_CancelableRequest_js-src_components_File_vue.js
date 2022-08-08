@@ -83,15 +83,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
 
 
 
@@ -219,7 +210,7 @@ __webpack_require__.r(__webpack_exports__);
 
   methods: {
     emitClick() {
-      this.$emit('on-click', this.item.fileid);
+      this.$emit('click', this.item.fileid);
     },
 
     /** When the image is fully loaded by browser we remove the placeholder */
@@ -410,7 +401,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "@charset \"UTF-8\";\n/**\n * @copyright Copyright (c) 2019 John Molakvoæ <skjnldsv@protonmail.com>\n *\n * @author John Molakvoæ <skjnldsv@protonmail.com>\n *\n * @license AGPL-3.0-or-later\n *\n * This program is free software: you can redistribute it and/or modify\n * it under the terms of the GNU Affero General Public License as\n * published by the Free Software Foundation, either version 3 of the\n * License, or (at your option) any later version.\n *\n * This program is distributed in the hope that it will be useful,\n * but WITHOUT ANY WARRANTY; without even the implied warranty of\n * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the\n * GNU Affero General Public License for more details.\n *\n * You should have received a copy of the GNU Affero General Public License\n * along with this program. If not, see <http://www.gnu.org/licenses/>.\n *\n */\n.file[data-v-ab80f8a8],\n.folder[data-v-ab80f8a8] {\n  position: relative;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  -webkit-user-select: none;\n          user-select: none;\n  border-radius: var(--border-radius);\n  overflow: hidden;\n}\n.file .cover[data-v-ab80f8a8],\n.folder .cover[data-v-ab80f8a8] {\n  z-index: 2;\n  width: 100%;\n  padding-bottom: 100%;\n  transition: opacity var(--animation-quick) ease-in-out;\n  opacity: 0;\n  background-color: var(--color-main-text);\n}\n.file.active .cover[data-v-ab80f8a8], .file:active .cover[data-v-ab80f8a8], .file:hover .cover[data-v-ab80f8a8], .file:focus .cover[data-v-ab80f8a8],\n.folder.active .cover[data-v-ab80f8a8],\n.folder:active .cover[data-v-ab80f8a8],\n.folder:hover .cover[data-v-ab80f8a8],\n.folder:focus .cover[data-v-ab80f8a8] {\n  opacity: 0.3;\n}\n.file--clear.active .cover[data-v-ab80f8a8], .file--clear:active .cover[data-v-ab80f8a8], .file--clear:hover .cover[data-v-ab80f8a8], .file--clear:focus .cover[data-v-ab80f8a8],\n.folder--clear.active .cover[data-v-ab80f8a8],\n.folder--clear:active .cover[data-v-ab80f8a8],\n.folder--clear:hover .cover[data-v-ab80f8a8],\n.folder--clear:focus .cover[data-v-ab80f8a8] {\n  opacity: 0.1;\n}\n.fade-enter-active[data-v-ab80f8a8], .fade-leave-active[data-v-ab80f8a8] {\n  transition: opacity var(--animation-quick) ease-in-out;\n}\n.fade-enter[data-v-ab80f8a8], .fade-leave-to[data-v-ab80f8a8] {\n  opacity: 0;\n}\n.file-container[data-v-ab80f8a8] {\n  background: lightgray;\n  position: relative;\n  border: 2px solid var(--color-main-background);\n  box-sizing: border-box;\n}\n.file-container.selected[data-v-ab80f8a8]::after {\n  position: absolute;\n  top: 0;\n  left: 0;\n  z-index: 2;\n  width: 100%;\n  height: 100%;\n  content: \"\";\n  outline: var(--color-primary) solid 4px;\n  outline-offset: -4px;\n  pointer-events: none;\n}\n.file-container:hover .selection-checkbox[data-v-ab80f8a8], .file-container.selected .selection-checkbox[data-v-ab80f8a8] {\n  display: flex;\n}\n.file-container .selection-checkbox[data-v-ab80f8a8] {\n  display: none;\n  position: absolute;\n  top: 8px;\n  right: min(22px, 50% - 7px);\n  z-index: 1;\n  width: fit-content;\n}\n.file-container .selection-checkbox[data-v-ab80f8a8]  .checkbox-radio-switch__label {\n  padding: 10px;\n}\n.file-container .selection-checkbox[data-v-ab80f8a8]  .checkbox-radio-switch__label::after {\n  content: \"\";\n  background: var(--color-primary-light);\n  width: 16px;\n  height: 16px;\n  position: absolute;\n  left: 1px;\n  z-index: -1;\n}\n.file-container .selection-checkbox[data-v-ab80f8a8]  .checkbox-radio-switch__label .checkbox-radio-switch__icon {\n  margin: 0;\n}\n.file-container a[data-v-ab80f8a8] {\n  width: 100%;\n  height: 100%;\n  box-sizing: border-box;\n  border-radius: 0;\n}\n.file-container a .images-container[data-v-ab80f8a8] {\n  display: contents;\n}\n.file-container a .images-container .icon-video-white[data-v-ab80f8a8] {\n  position: absolute;\n  top: 10px;\n  right: 10px;\n  z-index: 20;\n}\n.file-container a .images-container img[data-v-ab80f8a8] {\n  width: 100%;\n  height: 100%;\n  object-fit: cover;\n  position: absolute;\n}\n.file-container a .images-container .loading-overlay[data-v-ab80f8a8] {\n  position: absolute;\n  height: 100%;\n  width: 100%;\n  display: flex;\n  align-content: center;\n  align-items: center;\n  justify-content: center;\n}\n.file-container a .images-container .loading-overlay svg[data-v-ab80f8a8] {\n  width: 70%;\n  height: 70%;\n}", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, ".file-container[data-v-ab80f8a8] {\n  background: var(--color-primary-light);\n  position: relative;\n  height: 100%;\n  width: 100%;\n  border: 2px solid var(--color-main-background);\n  box-sizing: border-box;\n}\n.file-container.selected[data-v-ab80f8a8]::after, .file-container[data-v-ab80f8a8]:focus-within::after {\n  position: absolute;\n  top: 0;\n  left: 0;\n  z-index: 2;\n  width: 100%;\n  height: 100%;\n  content: \"\";\n  outline: var(--color-primary) solid 4px;\n  outline-offset: -4px;\n  pointer-events: none;\n}\n.file-container:hover .selection-checkbox[data-v-ab80f8a8], .file-container.selected .selection-checkbox[data-v-ab80f8a8], .file-container:focus-within .selection-checkbox[data-v-ab80f8a8] {\n  display: flex;\n}\n.file-container .selection-checkbox[data-v-ab80f8a8] {\n  display: none;\n  position: absolute;\n  top: 8px;\n  right: min(22px, 50% - 7px);\n  z-index: 1;\n  width: fit-content;\n}\n.file-container .selection-checkbox[data-v-ab80f8a8]  .checkbox-radio-switch__label {\n  padding: 10px;\n}\n.file-container .selection-checkbox[data-v-ab80f8a8]  .checkbox-radio-switch__label::after {\n  content: \"\";\n  background: var(--color-primary-light);\n  width: 16px;\n  height: 16px;\n  position: absolute;\n  left: 1px;\n  z-index: -1;\n}\n.file-container .selection-checkbox[data-v-ab80f8a8]  .checkbox-radio-switch__label .checkbox-radio-switch__icon {\n  margin: 0;\n}\n.file-container .selection-checkbox .input-label[data-v-ab80f8a8] {\n  position: fixed;\n  z-index: -1;\n  top: -5000px;\n  left: -5000px;\n}\n.file-container .file[data-v-ab80f8a8] {\n  width: 100%;\n  height: 100%;\n  box-sizing: border-box;\n}\n.file-container .file__images[data-v-ab80f8a8] {\n  display: contents;\n}\n.file-container .file__images .icon-video-white[data-v-ab80f8a8] {\n  position: absolute;\n  top: 10px;\n  right: 10px;\n  z-index: 20;\n}\n.file-container .file__images img[data-v-ab80f8a8] {\n  width: 100%;\n  height: 100%;\n  object-fit: cover;\n  position: absolute;\n}\n.file-container .file__images .loading-overlay[data-v-ab80f8a8] {\n  position: absolute;\n  height: 100%;\n  width: 100%;\n  display: flex;\n  align-content: center;\n  align-items: center;\n  justify-content: center;\n}\n.file-container .file__images .loading-overlay svg[data-v-ab80f8a8] {\n  width: 70%;\n  height: 70%;\n}\n.file-container .file__hidden-description[data-v-ab80f8a8] {\n  position: absolute;\n  left: -10000px;\n  top: -10000px;\n  width: 1px;\n  height: 1px;\n  overflow: hidden;\n}", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -573,14 +564,6 @@ var render = function () {
     "div",
     { staticClass: "file-container", class: { selected: _vm.selected } },
     [
-      _vm.allowSelection
-        ? _c("CheckboxRadioSwitch", {
-            staticClass: "selection-checkbox",
-            attrs: { checked: _vm.selected },
-            on: { "update:checked": _vm.onToggle },
-          })
-        : _vm._e(),
-      _vm._v(" "),
       _c(
         "a",
         {
@@ -598,7 +581,7 @@ var render = function () {
             ? _c("div", { staticClass: "icon-video-white" })
             : _vm._e(),
           _vm._v(" "),
-          _c("div", { staticClass: "images-container" }, [
+          _c("div", { staticClass: "file__images" }, [
             _vm.visibility !== "none" && _vm.canLoad && !_vm.error
               ? _c("img", {
                   key: _vm.item.basename + "-near",
@@ -624,47 +607,40 @@ var render = function () {
                   on: { load: _vm.onLoad, error: _vm.onError },
                 })
               : _vm._e(),
-            _vm._v(" "),
-            _vm.visibility === "none" || !_vm.loaded || _vm.error
-              ? _c(
-                  "div",
-                  {
-                    key: _vm.item.basename + "-placeholder",
-                    staticClass: "loading-overlay",
-                  },
-                  [
-                    _c(
-                      "svg",
-                      {
-                        attrs: {
-                          xmlns: "http://www.w3.org/2000/svg",
-                          viewBox: "0 0 32 32",
-                          fill: "url(#placeholder__gradient)",
-                        },
-                      },
-                      [
-                        _vm.isImage
-                          ? _c("use", { attrs: { href: "#placeholder--img" } })
-                          : _c("use", {
-                              attrs: { href: "#placeholder--video" },
-                            }),
-                      ]
-                    ),
-                  ]
-                )
-              : _vm._e(),
           ]),
           _vm._v(" "),
           _c(
             "p",
             {
-              staticClass: "hidden-visually",
+              staticClass: "file__hidden-description",
               attrs: { id: _vm.ariaDescription },
             },
             [_vm._v(_vm._s(_vm.item.basename))]
           ),
         ]
       ),
+      _vm._v(" "),
+      _vm.allowSelection
+        ? _c(
+            "CheckboxRadioSwitch",
+            {
+              staticClass: "selection-checkbox",
+              attrs: { checked: _vm.selected },
+              on: { "update:checked": _vm.onToggle },
+            },
+            [
+              _c("span", { staticClass: "input-label" }, [
+                _vm._v(
+                  _vm._s(
+                    _vm.t("photos", "Select image {imageName}", {
+                      imageName: _vm.item.basename,
+                    })
+                  )
+                ),
+              ]),
+            ]
+          )
+        : _vm._e(),
     ],
     1
   )
@@ -677,4 +653,4 @@ render._withStripped = true
 /***/ })
 
 }]);
-//# sourceMappingURL=photos-src_services_DavRequest_js-src_utils_CancelableRequest_js-src_components_File_vue.js.map?v=456d23508d99d8f1d36d
+//# sourceMappingURL=photos-src_services_DavRequest_js-src_utils_CancelableRequest_js-src_components_File_vue.js.map?v=6a0ebef9b90ffc656424
