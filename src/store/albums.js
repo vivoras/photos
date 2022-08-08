@@ -196,11 +196,11 @@ const actions = {
 	 */
 	async createAlbum(context, { album }) {
 		try {
-			await client.createDirectory(`/photos/${getCurrentUser()?.uid}/albums/${album.name}`)
+			await client.createDirectory(`/photos/${getCurrentUser()?.uid}/albums/${album.basename}`)
 			context.commit('addAlbums', { albums: [album] })
 		} catch (error) {
-			logger.error(t('photos', 'Failed to create {albumName}.', { albumName: album.name }), error)
-			showError(t('photos', 'Failed to create {albumName}.', { albumName: album.name }))
+			logger.error(t('photos', 'Failed to create {albumName}.', { albumName: album.basename }), error)
+			showError(t('photos', 'Failed to create {albumName}.', { albumName: album.basename }))
 		}
 	},
 
@@ -220,7 +220,7 @@ const actions = {
 
 			album = await client.moveFile(
 				`/photos/${getCurrentUser()?.uid}/albums/${currentAlbumName}`,
-				{ destinationFilename: newAlbumName }
+				`/photos/${getCurrentUser()?.uid}/albums/${newAlbumName}`,
 			)
 		} catch (error) {
 			logger.error(t('photos', 'Failed to rename {currentAlbumName} to {newAlbumName}.', { currentAlbumName, newAlbumName }), error)
@@ -239,7 +239,7 @@ const actions = {
 	 */
 	async deleteAlbum(context, { albumName }) {
 		try {
-			await client.deleteFile(`/files/${getCurrentUser()?.uid}/${albumName}`)
+			await client.deleteFile(`/photos/${getCurrentUser()?.uid}/albums/${albumName}`)
 			context.commit('removeAlbums', { albumNames: [albumName] })
 		} catch (error) {
 			logger.error(t('photos', 'Failed to delete {albumName}.', { albumName }), error)

@@ -57,11 +57,11 @@
 		</Button>
 	</div>
 
-	<AlbumCreationForm v-else
+	<AlbumForm v-else
 		:display-back-button="true"
 		:title="t('photos', 'New album')"
 		@back="showAlbumCreationForm = false"
-		@album-created="albumCreatedHandler" />
+		@done="albumCreatedHandler" />
 </template>
 
 <script>
@@ -71,7 +71,7 @@ import { Button } from '@nextcloud/vue'
 import { generateUrl } from '@nextcloud/router'
 
 import FetchAlbumsMixin from '../mixins/FetchAlbumsMixin.js'
-import AlbumCreationForm from '../components/AlbumCreationForm.vue'
+import AlbumForm from './AlbumForm.vue'
 import Loader from '../components/Loader.vue'
 
 export default {
@@ -79,7 +79,7 @@ export default {
 
 	components: {
 		Button,
-		AlbumCreationForm,
+		AlbumForm,
 		Loader,
 		Plus,
 	},

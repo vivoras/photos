@@ -20,7 +20,7 @@
  -
  -->
 <template>
-	<form v-if="!showCollaboratorView" class="album-creation-form">
+	<form v-if="!showCollaboratorView" class="album-form">
 		<div class="form-inputs">
 			<input ref="nameInput"
 				v-model="albumName"
@@ -28,12 +28,12 @@
 				name="name"
 				required
 				autofocus="true"
-				:placeholder="t('photos', 'Name of the new album')">
-			<label>
+				:placeholder="t('photos', 'Name of the album')">
+			<label v-if="!editMode">
 				<MapMarker /><input v-model="albumLocation"
-					type="text"
 					name="location"
-					:placeholder="t('photos', 'Add location')">
+					type="text"
+					:placeholder="t('photos', 'Location of the album')">
 			</label>
 		</div>
 		<div class="form-buttons">
@@ -47,7 +47,8 @@
 			</span>
 			<span class="right-buttons">
 
-				<Button :aria-label="t('photo', 'Go to the add collaborators view.')"
+				<Button v-if="!editMode"
+					:aria-label="t('photo', 'Go to the add collaborators view.')"
 					type="secondary"
 					:disabled="albumName.trim() === '' || loading"
 					@click="showCollaboratorView = true">
@@ -56,23 +57,22 @@
 					</template>
 					{{ t('photo', 'Add collaborators') }}
 				</Button>
-				<Button :aria-label="t('photo', 'Create the album.')"
+				<Button :aria-label="editMode ? t('photo', 'Save.') : t('photo', 'Create the album.')"
 					type="primary"
 					:disabled="albumName.trim() === '' || loading"
-					@click="createAlbum">
+					@click="submit()">
 					<template #icon>
 						<Loader v-if="loading" />
 						<Send v-else />
 					</template>
-					{{ t('photo', 'Create album') }}
+					{{ editMode ? t('photo', 'Save') : t('photo', 'Create album') }}
 				</Button>
 			</span>
 		</div>
 	</form>
 	<CollaboratorsSelectionForm v-else
 		class="add-collaborators-form"
-		@cancel="showCollaboratorView = true"
-		@submit="createAlbum">
+		@cancel="showCollaboratorView = true">
 		<template slot-scope="{collaborators}">
 			<span class="left-buttons">
 				<Button :aria-label="t('photo', 'Back to the new album form.')"
@@ -82,32 +82,34 @@
 				</Button>
 			</span>
 			<span class="right-buttons">
-				<Button :aria-label="t('photo', 'Create the album.')"
+				<Button :aria-label="editMode ? t('photo', 'Save.') : t('photo', 'Create the album.')"
 					type="primary"
 					:disabled="albumName.trim() === '' || loading"
-					@click="createAlbum(collaborators)">
+					@click="submit(collaborators)">
 					<template #icon>
 						<Loader v-if="loading" />
 						<Send v-else />
 					</template>
-					{{ t('photo', 'Create album') }}
+					{{ editMode ? t('photo', 'Save') : t('photo', 'Create album') }}
 				</Button>
 			</span>
 		</template>
 	</CollaboratorsSelectionForm>
 </template>
 <script>
+import { mapActions } from 'vuex'
 import MapMarker from 'vue-material-design-icons/MapMarker'
 import AccountMultiplePlus from 'vue-material-design-icons/AccountMultiplePlus'
 import Send from 'vue-material-design-icons/Send'
 
 import { Button } from '@nextcloud/vue'
+import moment from '@nextcloud/moment'
 
-import Loader from '../components/Loader.vue'
-import CollaboratorsSelectionForm from '../components/CollaboratorsSelectionForm.vue'
+import Loader from './Loader.vue'
+import CollaboratorsSelectionForm from './CollaboratorsSelectionForm.vue'
 
 export default {
-	name: 'AlbumCreationForm',
+	name: 'AlbumForm',
 
 	components: {
 		Button,
@@ -119,6 +121,10 @@ export default {
 	},
 
 	props: {
+		album: {
+			type: Object,
+			default: null,
+		},
 		displayBackButton: {
 			type: Boolean,
 			default: false,
@@ -134,24 +140,57 @@ export default {
 		}
 	},
 
+	computed: {
+		editMode() {
+			return this.album !== null
+		},
+	},
+
 	mounted() {
+		if (this.editMode) {
+			this.albumName = this.album.basename
+			this.albumLocation = this.album.location
+		}
+
 		this.$nextTick(() => {
 			this.$refs.nameInput.focus()
 		})
 	},
 
 	methods: {
-		async createAlbum(collaborators = []) {
+		...mapActions(['createAlbum', 'renameAlbum']),
+
+		submit(collaborators = []) {
+			if (this.editMode) {
+				this.handleUpdateAlbum(collaborators)
+			} else {
+				this.handleCreateAlbum(collaborators)
+			}
+		},
+
+		async handleCreateAlbum(collaborators = []) {
 			try {
 				this.loading = true
-				const album = await this.$store.dispatch('createAlbum', {
+				const album = await this.createAlbum({
 					album: {
-						name: this.albumName,
+						basename: this.albumName,
+						size: 0,
+						lastmod: moment().unix(),
 						location: this.albumLocation,
 						collaborators,
 					},
 				})
-				this.$emit('album-created', { album })
+				this.$emit('done', { album })
+			} finally {
+				this.loading = false
+			}
+		},
+
+		async handleUpdateAlbum(collaborators = []) {
+			try {
+				this.loading = true
+				const album = await this.renameAlbum({ currentAlbumName: this.album.basename, newAlbumName: this.albumName })
+				this.$emit('done', { album })
 			} finally {
 				this.loading = false
 			}
@@ -164,7 +203,7 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-.album-creation-form {
+.album-form {
 	display: flex;
 	flex-direction: column;
 	height: 350px;

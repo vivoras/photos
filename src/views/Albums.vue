@@ -70,7 +70,7 @@
 		<Modal v-if="showAlbumCreationForm"
 			:title="t('photos', 'New album')"
 			@close="showAlbumCreationForm = false">
-			<AlbumCreationForm @album-created="showAlbumCreationForm = false" />
+			<AlbumForm @done="showAlbumCreationForm = false" />
 		</Modal>
 	</div>
 </template>
@@ -83,7 +83,7 @@ import { Button, Modal, EmptyContent } from '@nextcloud/vue'
 
 import FetchAlbumsMixin from '../mixins/FetchAlbumsMixin.js'
 import AlbumCover from '../components/AlbumCover.vue'
-import AlbumCreationForm from '../components/AlbumCreationForm.vue'
+import AlbumForm from '../components/AlbumForm.vue'
 import Loader from '../components/Loader.vue'
 
 export default {
@@ -91,7 +91,7 @@ export default {
 	components: {
 		AlbumCover,
 		EmptyContent,
-		AlbumCreationForm,
+		AlbumForm,
 		Loader,
 		Modal,
 		Button,

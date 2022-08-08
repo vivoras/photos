@@ -53,9 +53,6 @@ export default {
 			loading: false,
 		}
 	},
-
-	methods: {
-	},
 }
 </script>
 <style lang="scss" scoped>

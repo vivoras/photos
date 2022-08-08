@@ -90,20 +90,6 @@
 			</template>
 
 			<Loader v-if="loadingCount > 0" key="loader" />
-
-			<Modal v-if="showAlbumCreationForm"
-				key="albumCreationForm"
-				:title="t('photos', 'New album')"
-				@close="showAlbumCreationForm = false">
-				<AlbumCreationForm @album-created="showAlbumCreationForm = false" />
-			</Modal>
-
-			<Modal v-if="showAlbumPicker"
-				key="albumPicker"
-				:title="t('photos', 'Add to album')"
-				@close="showAlbumPicker = false">
-				<AlbumPicker @album-picked="addSelectionToAlbum" />
-			</Modal>
 		</div>
 
 		<FilesListViewer ref="filesListViewer"
@@ -131,6 +117,20 @@
 					@select-toggled="onFileSelectToggle" />
 			</template>
 		</FilesListViewer>
+
+		<Modal v-if="showAlbumCreationForm"
+			key="albumCreationForm"
+			:title="t('photos', 'New album')"
+			@close="showAlbumCreationForm = false">
+			<AlbumForm @album-created="showAlbumCreationForm = false" />
+		</Modal>
+
+		<Modal v-if="showAlbumPicker"
+			key="albumPicker"
+			:title="t('photos', 'Add to album')"
+			@close="showAlbumPicker = false">
+			<AlbumPicker @done="addSelectionToAlbum" />
+		</Modal>
 	</div>
 </template>
 
@@ -155,14 +155,14 @@ import FilesListViewer from '../components/FilesListViewer.vue'
 import EmptyContent from '../components/EmptyContent.vue'
 import File from '../components/File.vue'
 import Loader from '../components/Loader.vue'
-import AlbumCreationForm from '../components/AlbumCreationForm.vue'
+import AlbumForm from '../components/AlbumForm.vue'
 import AlbumPicker from '../components/AlbumPicker.vue'
 
 export default {
 	name: 'Timeline',
 	components: {
 		EmptyContent,
-		AlbumCreationForm,
+		AlbumForm,
 		AlbumPicker,
 		FilesListViewer,
 		Loader,

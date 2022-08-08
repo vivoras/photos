@@ -43,12 +43,12 @@
 						{{ album.basename }}
 
 					</b>
-					<div v-if="album !== undefined" class="album-location">
+					<div v-if="album !== undefined && album.location !== undefined" class="album-location">
 						<MapMarker />{{ album.location }}
 					</div>
 				</div>
 
-				<!-- <Loader v-if="(loadingAlbums || loadingFiles) && fetchedFileIds.length !== 0" /> -->
+				<Loader v-if="loadingCount > 0" />
 			</div>
 			<div v-if="album !== undefined" class="album__header__actions">
 				<Button v-if="album.size !== 0"
@@ -66,16 +66,44 @@
 				</Button>
 				<Actions :force-menu="true">
 					<ActionButton :close-after-click="true"
-						:title="t('photos', 'Delete album')"
-						@click="deleteAlbum">
+						:title="t('photos', 'Edit details')"
+						@click="showEditAlbumForm = true">
 						<template #icon>
-							<TrashCan />
+							<Pencil />
 						</template>
 					</ActionButton>
-					<ActionButton v-if="selection.length === 0"
-						:close-after-click="true"
-						:title="n('photos', 'Remove file from album', 'Remove files from album', selection.length)"
-						@click="removeFilesFromAlbum(selectedFileIds)">
+					<template v-if="selection.length === 0">
+						<ActionButton :close-after-click="true"
+							:aria-label="t('photos', 'Download selection')"
+							:title="t('photos', 'Download')"
+							@click="downloadSelection">
+							<DownloadOutline slot="icon" />
+						</ActionButton>
+						<ActionButton v-if="shouldFavoriteSelection"
+							:close-after-click="true"
+							:aria-label="t('photos', 'Mark selection as favorite')"
+							:title="t('photos', 'Favorite')"
+							@click="favoriteSelection">
+							<Star slot="icon" />
+						</ActionButton>
+						<ActionButton v-else
+							:close-after-click="true"
+							:aria-label="t('photos', 'Remove selection from favorites')"
+							:title="t('photos', 'Remove from favorites')"
+							@click="unFavoriteSelection">
+							<Star slot="icon" />
+						</ActionButton>
+						<ActionButton :close-after-click="true"
+							:title="n('photos', 'Remove file from album', 'Remove files from album', selection.length)"
+							@click="removeFilesFromAlbum(selectedFileIds)">
+							<template #icon>
+								<TrashCan />
+							</template>
+						</ActionButton>
+					</template>
+					<ActionButton :close-after-click="true"
+						:title="t('photos', 'Delete album')"
+						@click="handleDeleteAlbum">
 						<template #icon>
 							<TrashCan />
 						</template>
@@ -132,6 +160,12 @@
 			@close="showShareModal = false">
 			<ShareAlbumForm @albumShared="showShareModal = false" />
 		</Modal>
+
+		<Modal v-if="showEditAlbumForm"
+			:title="t('photos', 'New album')"
+			@close="showEditAlbumForm = false">
+			<AlbumForm :album="album" @done="showEditAlbumForm = false" />
+		</Modal>
 	</div>
 </template>
 
@@ -140,9 +174,12 @@ import { mapActions, mapGetters } from 'vuex'
 import MapMarker from 'vue-material-design-icons/MapMarker'
 import ShareVariant from 'vue-material-design-icons/ShareVariant'
 import Plus from 'vue-material-design-icons/Plus'
+import Pencil from 'vue-material-design-icons/Pencil'
 import TrashCan from 'vue-material-design-icons/TrashCan'
 import ImagePlus from 'vue-material-design-icons/ImagePlus'
 import AlertCircle from 'vue-material-design-icons/AlertCircle'
+import Star from 'vue-material-design-icons/Star'
+import DownloadOutline from 'vue-material-design-icons/DownloadOutline'
 
 import { Actions, ActionButton, Button, Modal, EmptyContent } from '@nextcloud/vue'
 import { getCurrentUser } from '@nextcloud/auth'
@@ -155,6 +192,7 @@ import File from '../components/File.vue'
 import Loader from '../components/Loader.vue'
 import FilesPicker from '../components/FilesPicker.vue'
 import ShareAlbumForm from '../components/ShareAlbumForm.vue'
+import AlbumForm from '../components/AlbumForm.vue'
 import FolderIllustration from '../assets/Illustrations/folder.svg'
 import logger from '../services/logger.js'
 import client from '../services/DavClient.js'
@@ -167,11 +205,15 @@ export default {
 		MapMarker,
 		ShareVariant,
 		Plus,
+		Pencil,
+		Star,
+		DownloadOutline,
 		TrashCan,
 		ImagePlus,
 		AlertCircle,
 		FilesListViewer,
 		File,
+		AlbumForm,
 		EmptyContent,
 		Loader,
 		Actions,
@@ -199,7 +241,9 @@ export default {
 		return {
 			showAddPhotosModal: false,
 			showShareModal: false,
+			showEditAlbumForm: false,
 			FolderIllustration,
+			loadingCount: 0,
 		}
 	},
 
@@ -221,6 +265,12 @@ export default {
 		 */
 		albumFileIds() {
 			return this.albumsFiles[this.albumName] || []
+		},
+
+		/** @type {boolean} */
+		shouldFavoriteSelection() {
+			// Favorite all selection if at least one file is not on the favorites.
+			return this.selectedFileIds.some((fileId) => this.$store.state.files.files[fileId].favorite === 0)
 		},
 	},
 
@@ -319,8 +369,49 @@ export default {
 			}
 		},
 
-		async deleteAlbum() {
-			await this.deleteAlbum({ albumName: this.albumName })
+		async handleDeleteAlbum() {
+			try {
+				this.loadingCount++
+				await this.deleteAlbum({ albumName: this.albumName })
+				this.$router.push('/albums')
+			} catch (error) {
+				logger.error(error)
+			} finally {
+				this.loadingCount--
+			}
+		},
+
+		async favoriteSelection() {
+			try {
+				this.loadingCount++
+				await this.toggleFavoriteForFiles({ fileIds: this.selectedFileIds, favoriteState: true })
+			} catch (error) {
+				logger.error(error)
+			} finally {
+				this.loadingCount--
+			}
+		},
+
+		async unFavoriteSelection() {
+			try {
+				this.loadingCount++
+				await this.toggleFavoriteForFiles({ fileIds: this.selectedFileIds, favoriteState: false })
+			} catch (error) {
+				logger.error(error)
+			} finally {
+				this.loadingCount--
+			}
+		},
+
+		async downloadSelection() {
+			try {
+				this.loadingCount++
+				await this.downloadFiles(this.selectedFileIds)
+			} catch (error) {
+				logger.error(error)
+			} finally {
+				this.loadingCount--
+			}
 		},
 	},
 }
@@ -347,6 +438,12 @@ export default {
 		min-height: 60px;
 		align-items: center;
 		justify-content: space-between;
+
+		&__left {
+			height: 100%;
+			display: flex;
+			align-items: flex-start;
+		}
 
 		&__title {
 			min-width: 300px;
