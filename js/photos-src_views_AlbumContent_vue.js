@@ -21,6 +21,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _mixins_FilesSelectionMixin_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../mixins/FilesSelectionMixin.js */ "./src/mixins/FilesSelectionMixin.js");
 /* harmony import */ var _FilesListViewer_vue__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./FilesListViewer.vue */ "./src/components/FilesListViewer.vue");
 /* harmony import */ var _File_vue__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./File.vue */ "./src/components/File.vue");
+/* harmony import */ var _mixins_FilesByMonthMixin_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../mixins/FilesByMonthMixin.js */ "./src/mixins/FilesByMonthMixin.js");
 //
 //
 //
@@ -97,6 +98,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+
 
 
 
@@ -123,9 +125,14 @@ __webpack_require__.r(__webpack_exports__);
     }
 
   },
-  mixins: [_mixins_FetchFilesMixin_js__WEBPACK_IMPORTED_MODULE_4__["default"], _mixins_FilesSelectionMixin_js__WEBPACK_IMPORTED_MODULE_5__["default"]],
-  // TODO: add filter out ids
-  props: {},
+  mixins: [_mixins_FetchFilesMixin_js__WEBPACK_IMPORTED_MODULE_4__["default"], _mixins_FilesByMonthMixin_js__WEBPACK_IMPORTED_MODULE_8__["default"], _mixins_FilesSelectionMixin_js__WEBPACK_IMPORTED_MODULE_5__["default"]],
+  // List of file ids to not show.
+  props: {
+    blacklistIds: {
+      type: Array,
+      default: []
+    }
+  },
 
   data() {
     return {
@@ -133,32 +140,6 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
 
-  computed: {
-    /**
-     * @return {string[]}
-     */
-    filesListByMonth() {
-      const filesByMonth = {};
-
-      for (const fileId of Object.keys(this.files)) {
-        const file = this.files[fileId];
-        filesByMonth[file.month] = filesByMonth[file.month] ?? [];
-        filesByMonth[file.month].push(file.fileid);
-      } // Sort files in sections.
-
-
-      Object.keys(filesByMonth).forEach(month => filesByMonth[month].sort(this.sortFilesByTimestamp));
-      return filesByMonth;
-    },
-
-    /**
-     * @return {string[]}
-     */
-    monthsList() {
-      return Object.keys(this.filesListByMonth).sort((month1, month2) => month1 > month2 ? -1 : 1);
-    }
-
-  },
   watch: {
     monthsList(value) {
       if (this.targetMonth === null) {
@@ -168,13 +149,8 @@ __webpack_require__.r(__webpack_exports__);
 
   },
   methods: {
-    /**
-     * @param {string} fileId1 The first file ID
-     * @param {string} fileId2 The second file ID
-     * @return {-1 | 1}
-     */
-    sortFilesByTimestamp(fileId1, fileId2) {
-      return this.files[fileId1].timestamp > this.files[fileId2].timestamp ? -1 : 1;
+    getFiles() {
+      this.fetchFiles('', {}, this.blacklistIds);
     },
 
     emitPickedEvent() {
@@ -216,24 +192,33 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
+/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
 /* harmony import */ var vue_material_design_icons_MapMarker__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue-material-design-icons/MapMarker */ "./node_modules/vue-material-design-icons/MapMarker.vue");
 /* harmony import */ var vue_material_design_icons_ShareVariant__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vue-material-design-icons/ShareVariant */ "./node_modules/vue-material-design-icons/ShareVariant.vue");
 /* harmony import */ var vue_material_design_icons_Plus__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! vue-material-design-icons/Plus */ "./node_modules/vue-material-design-icons/Plus.vue");
-/* harmony import */ var vue_material_design_icons_TrashCan__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! vue-material-design-icons/TrashCan */ "./node_modules/vue-material-design-icons/TrashCan.vue");
-/* harmony import */ var vue_material_design_icons_ImagePlus__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! vue-material-design-icons/ImagePlus */ "./node_modules/vue-material-design-icons/ImagePlus.vue");
-/* harmony import */ var vue_material_design_icons_AlertCircle__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! vue-material-design-icons/AlertCircle */ "./node_modules/vue-material-design-icons/AlertCircle.vue");
-/* harmony import */ var _nextcloud_vue__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @nextcloud/vue */ "./node_modules/@nextcloud/vue/dist/ncvuecomponents.js");
-/* harmony import */ var _nextcloud_vue__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(_nextcloud_vue__WEBPACK_IMPORTED_MODULE_6__);
-/* harmony import */ var _mixins_FetchAlbumsMixin_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../mixins/FetchAlbumsMixin.js */ "./src/mixins/FetchAlbumsMixin.js");
-/* harmony import */ var _mixins_FetchFilesMixin_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../mixins/FetchFilesMixin.js */ "./src/mixins/FetchFilesMixin.js");
-/* harmony import */ var _mixins_FilesSelectionMixin_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../mixins/FilesSelectionMixin.js */ "./src/mixins/FilesSelectionMixin.js");
-/* harmony import */ var _components_FilesListViewer_vue__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../components/FilesListViewer.vue */ "./src/components/FilesListViewer.vue");
-/* harmony import */ var _components_File_vue__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../components/File.vue */ "./src/components/File.vue");
-/* harmony import */ var _components_Loader_vue__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../components/Loader.vue */ "./src/components/Loader.vue");
-/* harmony import */ var _components_FilesPicker_vue__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../components/FilesPicker.vue */ "./src/components/FilesPicker.vue");
-/* harmony import */ var _components_ShareAlbumForm_vue__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../components/ShareAlbumForm.vue */ "./src/components/ShareAlbumForm.vue");
-/* harmony import */ var _assets_Illustrations_folder_svg__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../assets/Illustrations/folder.svg */ "./src/assets/Illustrations/folder.svg");
+/* harmony import */ var vue_material_design_icons_Pencil__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! vue-material-design-icons/Pencil */ "./node_modules/vue-material-design-icons/Pencil.vue");
+/* harmony import */ var vue_material_design_icons_TrashCan__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! vue-material-design-icons/TrashCan */ "./node_modules/vue-material-design-icons/TrashCan.vue");
+/* harmony import */ var vue_material_design_icons_ImagePlus__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! vue-material-design-icons/ImagePlus */ "./node_modules/vue-material-design-icons/ImagePlus.vue");
+/* harmony import */ var vue_material_design_icons_AlertCircle__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! vue-material-design-icons/AlertCircle */ "./node_modules/vue-material-design-icons/AlertCircle.vue");
+/* harmony import */ var vue_material_design_icons_Star__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! vue-material-design-icons/Star */ "./node_modules/vue-material-design-icons/Star.vue");
+/* harmony import */ var vue_material_design_icons_DownloadOutline__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! vue-material-design-icons/DownloadOutline */ "./node_modules/vue-material-design-icons/DownloadOutline.vue");
+/* harmony import */ var _nextcloud_vue__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @nextcloud/vue */ "./node_modules/@nextcloud/vue/dist/ncvuecomponents.js");
+/* harmony import */ var _nextcloud_vue__WEBPACK_IMPORTED_MODULE_9___default = /*#__PURE__*/__webpack_require__.n(_nextcloud_vue__WEBPACK_IMPORTED_MODULE_9__);
+/* harmony import */ var _nextcloud_auth__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! @nextcloud/auth */ "./node_modules/@nextcloud/auth/dist/index.js");
+/* harmony import */ var _mixins_FetchAlbumsMixin_js__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../mixins/FetchAlbumsMixin.js */ "./src/mixins/FetchAlbumsMixin.js");
+/* harmony import */ var _mixins_FetchFilesMixin_js__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../mixins/FetchFilesMixin.js */ "./src/mixins/FetchFilesMixin.js");
+/* harmony import */ var _mixins_FilesSelectionMixin_js__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../mixins/FilesSelectionMixin.js */ "./src/mixins/FilesSelectionMixin.js");
+/* harmony import */ var _components_FilesListViewer_vue__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../components/FilesListViewer.vue */ "./src/components/FilesListViewer.vue");
+/* harmony import */ var _components_File_vue__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../components/File.vue */ "./src/components/File.vue");
+/* harmony import */ var _components_Loader_vue__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../components/Loader.vue */ "./src/components/Loader.vue");
+/* harmony import */ var _components_FilesPicker_vue__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../components/FilesPicker.vue */ "./src/components/FilesPicker.vue");
+/* harmony import */ var _components_ShareAlbumForm_vue__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../components/ShareAlbumForm.vue */ "./src/components/ShareAlbumForm.vue");
+/* harmony import */ var _components_AlbumForm_vue__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../components/AlbumForm.vue */ "./src/components/AlbumForm.vue");
+/* harmony import */ var _assets_Illustrations_folder_svg__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../assets/Illustrations/folder.svg */ "./src/assets/Illustrations/folder.svg");
+/* harmony import */ var _services_logger_js__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../services/logger.js */ "./src/services/logger.js");
+/* harmony import */ var _services_DavClient_js__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ../services/DavClient.js */ "./src/services/DavClient.js");
+/* harmony import */ var _services_DavRequest_js__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ../services/DavRequest.js */ "./src/services/DavRequest.js");
+/* harmony import */ var _utils_CancelableRequest_js__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ../utils/CancelableRequest.js */ "./src/utils/CancelableRequest.js");
 //
 //
 //
@@ -373,6 +358,47 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+
+
+
+
+
+
 
 
 
@@ -396,23 +422,27 @@ __webpack_require__.r(__webpack_exports__);
     MapMarker: vue_material_design_icons_MapMarker__WEBPACK_IMPORTED_MODULE_0__["default"],
     ShareVariant: vue_material_design_icons_ShareVariant__WEBPACK_IMPORTED_MODULE_1__["default"],
     Plus: vue_material_design_icons_Plus__WEBPACK_IMPORTED_MODULE_2__["default"],
-    TrashCan: vue_material_design_icons_TrashCan__WEBPACK_IMPORTED_MODULE_3__["default"],
-    ImagePlus: vue_material_design_icons_ImagePlus__WEBPACK_IMPORTED_MODULE_4__["default"],
-    AlertCircle: vue_material_design_icons_AlertCircle__WEBPACK_IMPORTED_MODULE_5__["default"],
-    FilesListViewer: _components_FilesListViewer_vue__WEBPACK_IMPORTED_MODULE_10__["default"],
-    File: _components_File_vue__WEBPACK_IMPORTED_MODULE_11__["default"],
-    EmptyContent: _nextcloud_vue__WEBPACK_IMPORTED_MODULE_6__.EmptyContent,
-    Loader: _components_Loader_vue__WEBPACK_IMPORTED_MODULE_12__["default"],
-    Actions: _nextcloud_vue__WEBPACK_IMPORTED_MODULE_6__.Actions,
-    ActionButton: _nextcloud_vue__WEBPACK_IMPORTED_MODULE_6__.ActionButton,
-    Button: _nextcloud_vue__WEBPACK_IMPORTED_MODULE_6__.Button,
-    Modal: _nextcloud_vue__WEBPACK_IMPORTED_MODULE_6__.Modal,
-    FilesPicker: _components_FilesPicker_vue__WEBPACK_IMPORTED_MODULE_13__["default"],
-    ShareAlbumForm: _components_ShareAlbumForm_vue__WEBPACK_IMPORTED_MODULE_14__["default"]
+    Pencil: vue_material_design_icons_Pencil__WEBPACK_IMPORTED_MODULE_3__["default"],
+    Star: vue_material_design_icons_Star__WEBPACK_IMPORTED_MODULE_7__["default"],
+    DownloadOutline: vue_material_design_icons_DownloadOutline__WEBPACK_IMPORTED_MODULE_8__["default"],
+    TrashCan: vue_material_design_icons_TrashCan__WEBPACK_IMPORTED_MODULE_4__["default"],
+    ImagePlus: vue_material_design_icons_ImagePlus__WEBPACK_IMPORTED_MODULE_5__["default"],
+    AlertCircle: vue_material_design_icons_AlertCircle__WEBPACK_IMPORTED_MODULE_6__["default"],
+    FilesListViewer: _components_FilesListViewer_vue__WEBPACK_IMPORTED_MODULE_14__["default"],
+    File: _components_File_vue__WEBPACK_IMPORTED_MODULE_15__["default"],
+    AlbumForm: _components_AlbumForm_vue__WEBPACK_IMPORTED_MODULE_19__["default"],
+    EmptyContent: _nextcloud_vue__WEBPACK_IMPORTED_MODULE_9__.EmptyContent,
+    Loader: _components_Loader_vue__WEBPACK_IMPORTED_MODULE_16__["default"],
+    Actions: _nextcloud_vue__WEBPACK_IMPORTED_MODULE_9__.Actions,
+    ActionButton: _nextcloud_vue__WEBPACK_IMPORTED_MODULE_9__.ActionButton,
+    Button: _nextcloud_vue__WEBPACK_IMPORTED_MODULE_9__.Button,
+    Modal: _nextcloud_vue__WEBPACK_IMPORTED_MODULE_9__.Modal,
+    FilesPicker: _components_FilesPicker_vue__WEBPACK_IMPORTED_MODULE_17__["default"],
+    ShareAlbumForm: _components_ShareAlbumForm_vue__WEBPACK_IMPORTED_MODULE_18__["default"]
   },
-  mixins: [_mixins_FetchAlbumsMixin_js__WEBPACK_IMPORTED_MODULE_7__["default"], _mixins_FetchFilesMixin_js__WEBPACK_IMPORTED_MODULE_8__["default"], _mixins_FilesSelectionMixin_js__WEBPACK_IMPORTED_MODULE_9__["default"]],
+  mixins: [_mixins_FetchAlbumsMixin_js__WEBPACK_IMPORTED_MODULE_11__["default"], _mixins_FetchFilesMixin_js__WEBPACK_IMPORTED_MODULE_12__["default"], _mixins_FilesSelectionMixin_js__WEBPACK_IMPORTED_MODULE_13__["default"]],
   props: {
-    albumId: {
+    albumName: {
       type: String,
       default: '/'
     }
@@ -422,24 +452,32 @@ __webpack_require__.r(__webpack_exports__);
     return {
       showAddPhotosModal: false,
       showShareModal: false,
-      FolderIllustration: _assets_Illustrations_folder_svg__WEBPACK_IMPORTED_MODULE_15__
+      showEditAlbumForm: false,
+      FolderIllustration: _assets_Illustrations_folder_svg__WEBPACK_IMPORTED_MODULE_20__,
+      loadingCount: 0
     };
   },
 
-  computed: { ...(0,vuex__WEBPACK_IMPORTED_MODULE_16__.mapGetters)(['files', 'albumsFiles']),
+  computed: { ...(0,vuex__WEBPACK_IMPORTED_MODULE_25__.mapGetters)(['files', 'albumsFiles']),
 
     /**
-     * @return {string[]} The album information for the current albumId.
+     * @return {string[]} The album information for the current albumName.
      */
     album() {
-      return this.albums[this.albumId];
+      return this.albums[this.albumName];
     },
 
     /**
-     * @return {string[]} The list of files for the current albumId.
+     * @return {string[]} The list of files for the current albumName.
      */
-    albumFiles() {
-      return this.albumsFiles[this.albumId] || [];
+    albumFileIds() {
+      return this.albumsFiles[this.albumName] || [];
+    },
+
+    /** @type {boolean} */
+    shouldFavoriteSelection() {
+      // Favorite all selection if at least one file is not on the favorites.
+      return this.selectedFileIds.some(fileId => this.$store.state.files.files[fileId].favorite === 0);
     }
 
   },
@@ -449,48 +487,152 @@ __webpack_require__.r(__webpack_exports__);
     }
 
   },
-  methods: {
-    async fetchAlbumContent() {
-      const fileIds = await this.fetchFiles(this.album.name);
+  methods: { ...(0,vuex__WEBPACK_IMPORTED_MODULE_25__.mapActions)(['appendFiles', 'deleteAlbum', 'addFilesToAlbum', 'removeFilesFromAlbum']),
 
-      if (fileIds.length > 0) {
-        this.$store.commit('addFilesToAlbum', {
-          albumId: this.albumId,
-          fileIdsToAdd: fileIds
-        });
+    async fetchAlbumContent() {
+      if (this.loadingFiles) {
+        return [];
       }
+
+      const semaphoreSymbol = await this.semaphore.acquire(() => 0, 'fetchFiles');
+      const fetchSemaphoreSymbol = await this.fetchSemaphore.acquire();
+
+      try {
+        this.errorFetchingFiles = null;
+        this.loadingFiles = true;
+        this.semaphoreSymbol = semaphoreSymbol;
+        const {
+          request,
+          cancel
+        } = (0,_utils_CancelableRequest_js__WEBPACK_IMPORTED_MODULE_24__["default"])(_services_DavClient_js__WEBPACK_IMPORTED_MODULE_22__["default"].getDirectoryContents);
+        this.cancelFilesRequest = cancel;
+        const fetchedFiles = await request(`/photos/${(0,_nextcloud_auth__WEBPACK_IMPORTED_MODULE_10__.getCurrentUser)()?.uid}/albums/${this.albumName}`, {
+          data: _services_DavRequest_js__WEBPACK_IMPORTED_MODULE_23__["default"]
+        });
+        const fileIds = fetchedFiles.map(file => file.fileid);
+        this.appendFiles(fetchedFiles);
+
+        if (fetchedFiles.length > 0) {
+          await this.$store.commit('addFilesToAlbum', {
+            albumName: this.albumName,
+            fileIdsToAdd: fileIds
+          });
+        }
+
+        _services_logger_js__WEBPACK_IMPORTED_MODULE_21__["default"].debug(`[AlbumContent] Fetched ${fileIds.length} new files: `, fileIds);
+      } catch (error) {
+        if (error.response && error.response.status) {
+          if (error.response.status === 404) {
+            this.errorFetchingFiles = 404;
+          } else {
+            this.errorFetchingFiles = error;
+          }
+        } // cancelled request, moving on...
+
+
+        _services_logger_js__WEBPACK_IMPORTED_MODULE_21__["default"].error('Error fetching album files', error);
+      } finally {
+        this.loadingFiles = false;
+
+        this.cancelFilesRequest = () => {};
+
+        this.semaphore.release(semaphoreSymbol);
+        this.fetchSemaphore.release(fetchSemaphoreSymbol);
+      }
+
+      return [];
     },
 
     openViewer(fileId) {
       const file = this.files[fileId];
       OCA.Viewer.open({
         path: file.filename,
-        list: this.albumFiles.map(fileId => this.files[fileId]).filter(file => !file.sectionHeader),
+        list: this.albumFileIds.map(fileId => this.files[fileId]).filter(file => !file.sectionHeader),
         loadMore: file.loadMore ? async () => await file.loadMore(true) : () => [],
         canLoop: file.canLoop
       });
     },
 
-    addFilesToAlbum(fileIds) {
-      this.$store.dispatch('addFilesToAlbum', {
-        albumId: this.albumId,
-        fileIdsToAdd: fileIds
-      });
-      this.showAddPhotosModal = false;
+    async handleFilesPicked(fileIds) {
+      try {
+        this.loadingCount++;
+        await this.addFilesToAlbum({
+          albumName: this.albumName,
+          fileIdsToAdd: fileIds
+        });
+        this.showAddPhotosModal = false;
+      } catch (error) {
+        _services_logger_js__WEBPACK_IMPORTED_MODULE_21__["default"].error(error);
+      } finally {
+        this.loadingCount--;
+      }
     },
 
-    removeFilesFromAlbum(fileIds) {
-      this.$store.dispatch('removeFilesFromAlbum', {
-        albumId: this.albumId,
-        fileIdsToAdd: fileIds
-      });
+    async removeFilesFromAlbum(fileIds) {
+      try {
+        this.loadingCount++;
+        await this.removeFilesFromAlbum({
+          albumName: this.albumName,
+          fileIdsToAdd: fileIds
+        });
+      } catch (error) {
+        _services_logger_js__WEBPACK_IMPORTED_MODULE_21__["default"].error(error);
+      } finally {
+        this.loadingCount--;
+      }
     },
 
-    // TODO: Check delete album.
-    deleteAlbum() {
-      this.$store.dispatch('deleteAlbum', {
-        albumId: this.albumId
-      });
+    async handleDeleteAlbum() {
+      try {
+        this.loadingCount++;
+        await this.deleteAlbum({
+          albumName: this.albumName
+        });
+        this.$router.push('/albums');
+      } catch (error) {
+        _services_logger_js__WEBPACK_IMPORTED_MODULE_21__["default"].error(error);
+      } finally {
+        this.loadingCount--;
+      }
+    },
+
+    async favoriteSelection() {
+      try {
+        this.loadingCount++;
+        await this.toggleFavoriteForFiles({
+          fileIds: this.selectedFileIds,
+          favoriteState: true
+        });
+      } catch (error) {
+        _services_logger_js__WEBPACK_IMPORTED_MODULE_21__["default"].error(error);
+      } finally {
+        this.loadingCount--;
+      }
+    },
+
+    async unFavoriteSelection() {
+      try {
+        this.loadingCount++;
+        await this.toggleFavoriteForFiles({
+          fileIds: this.selectedFileIds,
+          favoriteState: false
+        });
+      } catch (error) {
+        _services_logger_js__WEBPACK_IMPORTED_MODULE_21__["default"].error(error);
+      } finally {
+        this.loadingCount--;
+      }
+    },
+
+    async downloadSelection() {
+      try {
+        this.loadingCount++;
+        await this.downloadFiles(this.selectedFileIds);
+      } catch (error) {
+        _services_logger_js__WEBPACK_IMPORTED_MODULE_21__["default"].error(error);
+      } finally {
+        this.loadingCount--;
+      }
     }
 
   }
@@ -517,7 +659,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, ".file-picker[data-v-10d87d65] {\n  display: flex;\n  flex-direction: column;\n  padding: 12px;\n}\n.file-picker__content[data-v-10d87d65] {\n  display: flex;\n  flex-grow: 1;\n  height: 500px;\n}\n.file-picker__navigation[data-v-10d87d65] {\n  flex-basis: 200px;\n  overflow: scroll;\n  margin-right: 8px;\n  padding-right: 8px;\n}\n.file-picker__navigation__month[data-v-10d87d65] {\n  font-weight: bold;\n  font-size: 16px;\n  border-radius: 48px;\n  padding: 8px 16px;\n  margin: 4px 0;\n  cursor: pointer;\n}\n.file-picker__navigation__month[data-v-10d87d65]:hover {\n  background: var(--color-background-dark);\n}\n.file-picker__navigation__month.selected[data-v-10d87d65] {\n  background: var(--color-primary-element-lighter);\n}\n.file-picker__file-list[data-v-10d87d65] {\n  flex-grow: 1;\n  min-width: 0;\n}\n.file-picker__file-list .section-header[data-v-10d87d65] {\n  font-weight: bold;\n  font-size: 20px;\n  padding: 8px 0 4px 0;\n}\n.file-picker__actions[data-v-10d87d65] {\n  display: flex;\n  justify-content: space-between;\n  justify-items: center;\n  padding-top: 16px;\n}", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, ".file-picker[data-v-10d87d65] {\n  display: flex;\n  flex-direction: column;\n  padding: 12px;\n}\n.file-picker__content[data-v-10d87d65] {\n  display: flex;\n  align-items: flex-start;\n  flex-grow: 1;\n  height: 500px;\n}\n.file-picker__navigation[data-v-10d87d65] {\n  flex-basis: 200px;\n  overflow: scroll;\n  margin-right: 8px;\n  padding-right: 8px;\n  height: 100%;\n}\n.file-picker__navigation__month[data-v-10d87d65] {\n  font-weight: bold;\n  font-size: 16px;\n  border-radius: 48px;\n  padding: 8px 16px;\n  margin: 4px 0;\n  cursor: pointer;\n}\n.file-picker__navigation__month[data-v-10d87d65]:hover {\n  background: var(--color-background-dark);\n}\n.file-picker__navigation__month.selected[data-v-10d87d65] {\n  background: var(--color-primary-element-lighter);\n}\n.file-picker__file-list[data-v-10d87d65] {\n  flex-grow: 1;\n  min-width: 0;\n  height: 100%;\n}\n.file-picker__file-list .section-header[data-v-10d87d65] {\n  font-weight: bold;\n  font-size: 20px;\n  padding: 8px 0 4px 0;\n}\n.file-picker__actions[data-v-10d87d65] {\n  display: flex;\n  justify-content: space-between;\n  justify-items: center;\n  padding-top: 16px;\n}", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -543,7 +685,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, ".album-container[data-v-36505f44] {\n  display: flex;\n  flex-direction: column;\n  padding: 8px 64px;\n}\n.album-container .empty-album[data-v-36505f44] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n}\n.album-container .empty-album__button[data-v-36505f44] {\n  margin-top: 32px;\n}\n.album-container .album-header[data-v-36505f44] {\n  display: flex;\n  min-height: 60px;\n  align-items: center;\n  justify-content: space-between;\n}\n.album-container .album-header .album-title[data-v-36505f44] {\n  min-width: 300px;\n}\n.album-container .album-header .album-title .album-location[data-v-36505f44] {\n  margin-left: -4px;\n  display: flex;\n  color: var(--color-text-lighter);\n}\n.album-container .album-header .album-actions[data-v-36505f44] {\n  display: flex;\n  align-items: baseline;\n}\n.album-container .album-header .album-actions button[data-v-36505f44] {\n  margin-left: 16px;\n}\n.album-container .album-photos[data-v-36505f44] {\n  margin-top: 16px;\n  height: 100%;\n  min-height: 0;\n}\n.empty-content-with-illustration[data-v-36505f44]  .empty-content__icon {\n  width: 200px;\n  height: 200px;\n}\n.empty-content-with-illustration[data-v-36505f44]  .empty-content__icon svg {\n  width: 200px;\n  height: 200px;\n}", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, ".album[data-v-36505f44] {\n  display: flex;\n  flex-direction: column;\n  padding: 8px 64px;\n}\n.album__empty[data-v-36505f44] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n}\n.album__empty__button[data-v-36505f44] {\n  margin-top: 32px;\n}\n.album__header[data-v-36505f44] {\n  display: flex;\n  min-height: 60px;\n  align-items: center;\n  justify-content: space-between;\n}\n.album__header__left[data-v-36505f44] {\n  height: 100%;\n  display: flex;\n  align-items: flex-start;\n}\n.album__header__title[data-v-36505f44] {\n  min-width: 300px;\n}\n.album__header__title .album-location[data-v-36505f44] {\n  margin-left: -4px;\n  display: flex;\n  color: var(--color-text-lighter);\n}\n.album__header__actions[data-v-36505f44] {\n  display: flex;\n  align-items: center;\n}\n.album__header__actions button[data-v-36505f44] {\n  margin-left: 16px;\n}\n.album__photos[data-v-36505f44] {\n  margin-top: 16px;\n  height: 100%;\n  min-height: 0;\n}\n.empty-content-with-illustration[data-v-36505f44]  .empty-content__icon {\n  width: 200px;\n  height: 200px;\n}\n.empty-content-with-illustration[data-v-36505f44]  .empty-content__icon svg {\n  width: 200px;\n  height: 200px;\n}", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -925,7 +1067,7 @@ var render = function () {
                 class: { selected: _vm.targetMonth === month },
                 on: {
                   click: function ($event) {
-                    return _vm.scrollTo(month)
+                    _vm.targetMonth = month
                   },
                 },
               },
@@ -944,14 +1086,14 @@ var render = function () {
         _c("FilesListViewer", {
           staticClass: "file-picker__file-list",
           attrs: {
-            "file-ids-by-section": _vm.filesListByMonth,
+            "file-ids-by-section": _vm.fileIdsByMonth,
             sections: _vm.monthsList,
-            loading: _vm.loadingFiles && _vm.fetchedFileIds.length !== 0,
+            loading: _vm.loadingFiles,
             "base-height": 100,
             "section-header-height": 50,
             "scroll-to-section": _vm.targetMonth,
           },
-          on: { "need-content": _vm.fetchedFileIds },
+          on: { "need-content": _vm.getFiles },
           scopedSlots: _vm._u([
             {
               key: "default",
@@ -1096,7 +1238,7 @@ var render = function () {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _vm.errorFetchingFiles === 404
+  return _vm.album === undefined && !_vm.loadingAlbums
     ? _c(
         "EmptyContent",
         {
@@ -1145,41 +1287,48 @@ var render = function () {
       )
     : _c(
         "div",
-        { staticClass: "album-container" },
+        { staticClass: "album" },
         [
-          _c("div", { staticClass: "album-header" }, [
-            _c("div", { staticClass: "album-header-left" }, [
-              _c("div", { staticClass: "album-title" }, [
-                _vm.album !== undefined
-                  ? _c("b", { staticClass: "album-name" }, [
-                      _vm._v(
-                        "\n\t\t\t\t\t" +
-                          _vm._s(_vm.album.name || "All") +
-                          "\n\n\t\t\t\t"
-                      ),
-                    ])
-                  : _vm._e(),
+          _c("div", { staticClass: "album__header" }, [
+            _c(
+              "div",
+              { staticClass: "album__header__left" },
+              [
+                _c("div", { staticClass: "album__header__title" }, [
+                  _vm.album !== undefined
+                    ? _c("b", { staticClass: "album-name" }, [
+                        _vm._v(
+                          "\n\t\t\t\t\t" +
+                            _vm._s(_vm.album.basename) +
+                            "\n\n\t\t\t\t"
+                        ),
+                      ])
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm.album !== undefined && _vm.album.location !== undefined
+                    ? _c(
+                        "div",
+                        { staticClass: "album-location" },
+                        [
+                          _c("MapMarker"),
+                          _vm._v(_vm._s(_vm.album.location) + "\n\t\t\t\t"),
+                        ],
+                        1
+                      )
+                    : _vm._e(),
+                ]),
                 _vm._v(" "),
-                _vm.album !== undefined
-                  ? _c(
-                      "div",
-                      { staticClass: "album-location" },
-                      [
-                        _c("MapMarker"),
-                        _vm._v(_vm._s(_vm.album.location) + "\n\t\t\t\t"),
-                      ],
-                      1
-                    )
-                  : _vm._e(),
-              ]),
-            ]),
+                _vm.loadingCount > 0 ? _c("Loader") : _vm._e(),
+              ],
+              1
+            ),
             _vm._v(" "),
             _vm.album !== undefined
               ? _c(
                   "div",
-                  { staticClass: "album-actions" },
+                  { staticClass: "album__header__actions" },
                   [
-                    _vm.album.itemCount !== 0
+                    _vm.album.size !== 0
                       ? _c("Button", {
                           attrs: {
                             type: "tertiary",
@@ -1243,9 +1392,141 @@ var render = function () {
                         _c("ActionButton", {
                           attrs: {
                             "close-after-click": true,
+                            title: _vm.t("photos", "Edit details"),
+                          },
+                          on: {
+                            click: function ($event) {
+                              _vm.showEditAlbumForm = true
+                            },
+                          },
+                          scopedSlots: _vm._u(
+                            [
+                              {
+                                key: "icon",
+                                fn: function () {
+                                  return [_c("Pencil")]
+                                },
+                                proxy: true,
+                              },
+                            ],
+                            null,
+                            false,
+                            514409694
+                          ),
+                        }),
+                        _vm._v(" "),
+                        _vm.selection.length === 0
+                          ? [
+                              _c(
+                                "ActionButton",
+                                {
+                                  attrs: {
+                                    "close-after-click": true,
+                                    "aria-label": _vm.t(
+                                      "photos",
+                                      "Download selection"
+                                    ),
+                                    title: _vm.t("photos", "Download"),
+                                  },
+                                  on: { click: _vm.downloadSelection },
+                                },
+                                [
+                                  _c("DownloadOutline", {
+                                    attrs: { slot: "icon" },
+                                    slot: "icon",
+                                  }),
+                                ],
+                                1
+                              ),
+                              _vm._v(" "),
+                              _vm.shouldFavoriteSelection
+                                ? _c(
+                                    "ActionButton",
+                                    {
+                                      attrs: {
+                                        "close-after-click": true,
+                                        "aria-label": _vm.t(
+                                          "photos",
+                                          "Mark selection as favorite"
+                                        ),
+                                        title: _vm.t("photos", "Favorite"),
+                                      },
+                                      on: { click: _vm.favoriteSelection },
+                                    },
+                                    [
+                                      _c("Star", {
+                                        attrs: { slot: "icon" },
+                                        slot: "icon",
+                                      }),
+                                    ],
+                                    1
+                                  )
+                                : _c(
+                                    "ActionButton",
+                                    {
+                                      attrs: {
+                                        "close-after-click": true,
+                                        "aria-label": _vm.t(
+                                          "photos",
+                                          "Remove selection from favorites"
+                                        ),
+                                        title: _vm.t(
+                                          "photos",
+                                          "Remove from favorites"
+                                        ),
+                                      },
+                                      on: { click: _vm.unFavoriteSelection },
+                                    },
+                                    [
+                                      _c("Star", {
+                                        attrs: { slot: "icon" },
+                                        slot: "icon",
+                                      }),
+                                    ],
+                                    1
+                                  ),
+                              _vm._v(" "),
+                              _c("ActionButton", {
+                                attrs: {
+                                  "close-after-click": true,
+                                  title: _vm.n(
+                                    "photos",
+                                    "Remove file from album",
+                                    "Remove files from album",
+                                    _vm.selection.length
+                                  ),
+                                },
+                                on: {
+                                  click: function ($event) {
+                                    return _vm.removeFilesFromAlbum(
+                                      _vm.selectedFileIds
+                                    )
+                                  },
+                                },
+                                scopedSlots: _vm._u(
+                                  [
+                                    {
+                                      key: "icon",
+                                      fn: function () {
+                                        return [_c("TrashCan")]
+                                      },
+                                      proxy: true,
+                                    },
+                                  ],
+                                  null,
+                                  false,
+                                  2019846067
+                                ),
+                              }),
+                            ]
+                          : _vm._e(),
+                        _vm._v(" "),
+                        _c("ActionButton", {
+                          attrs: {
+                            "close-after-click": true,
                             title: _vm.t("photos", "Delete album"),
                           },
-                          on: { click: _vm.deleteAlbum },
+                          on: { click: _vm.handleDeleteAlbum },
                           scopedSlots: _vm._u(
                             [
                               {
@@ -1261,43 +1542,8 @@ var render = function () {
                             2019846067
                           ),
                         }),
-                        _vm._v(" "),
-                        _vm.selection.length === 0
-                          ? _c("ActionButton", {
-                              attrs: {
-                                "close-after-click": true,
-                                title: _vm.n(
-                                  "photos",
-                                  "Remove file from album",
-                                  "Remove files from album",
-                                  _vm.selection.length
-                                ),
-                              },
-                              on: {
-                                click: function ($event) {
-                                  return _vm.removeFilesFromAlbum(
-                                    _vm.selectedFileIds
-                                  )
-                                },
-                              },
-                              scopedSlots: _vm._u(
-                                [
-                                  {
-                                    key: "icon",
-                                    fn: function () {
-                                      return [_c("TrashCan")]
-                                    },
-                                    proxy: true,
-                                  },
-                                ],
-                                null,
-                                false,
-                                2019846067
-                              ),
-                            })
-                          : _vm._e(),
                       ],
-                      1
+                      2
                     ),
                   ],
                   1
@@ -1306,11 +1552,11 @@ var render = function () {
           ]),
           _vm._v(" "),
           _vm.album !== undefined &&
-          _vm.album.itemCount === 0 &&
+          _vm.album.size === 0 &&
           !(_vm.loadingFiles || _vm.loadingAlbums)
             ? _c(
                 "div",
-                { staticClass: "empty-album" },
+                { staticClass: "album__empty" },
                 [
                   _c("EmptyContent", {
                     scopedSlots: _vm._u(
@@ -1350,7 +1596,7 @@ var render = function () {
                   _c(
                     "Button",
                     {
-                      staticClass: "empty-album__button",
+                      staticClass: "album__empty__button",
                       attrs: {
                         type: "primary",
                         "aria-label": _vm.t(
@@ -1391,13 +1637,12 @@ var render = function () {
           _vm._v(" "),
           _vm.album !== undefined
             ? _c("FilesListViewer", {
-                staticClass: "album-photos",
+                staticClass: "album__photos",
                 attrs: {
                   "use-window": true,
-                  "file-ids": _vm.albumFiles,
+                  "file-ids": _vm.albumFileIds,
                   loading: _vm.loadingFiles || _vm.loadingAlbums,
                 },
-                on: { "need-content": _vm.fetchAlbumContent },
                 scopedSlots: _vm._u(
                   [
                     {
@@ -1445,7 +1690,8 @@ var render = function () {
                 },
                 [
                   _c("FilesPicker", {
-                    on: { "files-picked": _vm.addFilesToAlbum },
+                    attrs: { "blacklist-ids": _vm.albumFileIds },
+                    on: { "files-picked": _vm.handleFilesPicked },
                   }),
                 ],
                 1
@@ -1466,6 +1712,31 @@ var render = function () {
                     on: {
                       albumShared: function ($event) {
                         _vm.showShareModal = false
+                      },
+                    },
+                  }),
+                ],
+                1
+              )
+            : _vm._e(),
+          _vm._v(" "),
+          _vm.showEditAlbumForm
+            ? _c(
+                "Modal",
+                {
+                  attrs: { title: _vm.t("photos", "New album") },
+                  on: {
+                    close: function ($event) {
+                      _vm.showEditAlbumForm = false
+                    },
+                  },
+                },
+                [
+                  _c("AlbumForm", {
+                    attrs: { album: _vm.album },
+                    on: {
+                      done: function ($event) {
+                        _vm.showEditAlbumForm = false
                       },
                     },
                   }),
@@ -1495,4 +1766,4 @@ module.exports = "<svg id=\"3ecf9745-447a-4766-8a86-6837975429df\" data-name=\"L
 /***/ })
 
 }]);
-//# sourceMappingURL=photos-src_views_AlbumContent_vue.js.map?v=6a596da581eb65fdf5b6
+//# sourceMappingURL=photos-src_views_AlbumContent_vue.js.map?v=7a2494a7692263f87ae0

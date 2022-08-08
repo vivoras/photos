@@ -28,6 +28,7 @@ import isMapsInstalled from '../services/IsMapsInstalled.js'
 import areTagsInstalled from '../services/AreTagsInstalled.js'
 import { imageMimes, videoMimes } from '../services/AllowedMimes.js'
 
+const Folders = () => import('../views/Folders')
 const Albums = () => import('../views/Albums')
 const AlbumContent = () => import('../views/AlbumContent')
 const Tags = () => import('../views/Tags')
@@ -94,7 +95,7 @@ export default new Router({
 		},
 		{
 			path: '/folders/:path*',
-			component: Albums,
+			component: Folders,
 			name: 'folders',
 			props: route => ({
 				path: parsePathParams(route.params.path),
