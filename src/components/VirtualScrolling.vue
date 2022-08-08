@@ -278,7 +278,11 @@ export default {
 
 	methods: {
 		updateScrollPosition() {
-			this.scrollPosition = this.container.scrollY
+			if (this.useWindow) {
+				this.scrollPosition = this.container.scrollY
+			} else {
+				this.scrollPosition = this.container.scrollTop
+			}
 		},
 		updateContainerSize() {
 			this.containerHeight = window.innerHeight
