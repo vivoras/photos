@@ -100,10 +100,12 @@ export default {
 					this.doneFetchingFiles = true
 				}
 
-				const fileIds = fetchedFiles.map(file => file.fileid).filter(fileId => !this.fetchedFileIds.includes(fileId)) // Filter to prevent duplicate fileId.
+				const fileIds = fetchedFiles.map(file => file.fileid).filter(fileId => !this.fetchedFileIds.includes(fileId)) // Filter to prevent duplicate fileIds.
 				this.fetchedFileIds.push(...fileIds)
 
 				this.$store.dispatch('appendFiles', fetchedFiles)
+
+				logger.debug(`Fetched ${fileIds.length} new files: `, fileIds)
 
 				return fileIds
 			} catch (error) {

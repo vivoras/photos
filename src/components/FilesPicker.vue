@@ -27,18 +27,18 @@
 					:key="month"
 					class="file-picker__navigation__month"
 					:class="{selected: targetMonth === month}"
-					@click="scrollTo(month)">
+					@click="targetMonth = month">
 					{{ month | dateMonthAndYear }}
 				</div>
 			</div>
 			<FilesListViewer class="file-picker__file-list"
-				:file-ids-by-section="filesListByMonth"
+				:file-ids-by-section="fileIdsByMonth"
 				:sections="monthsList"
-				:loading="loadingFiles && fetchedFileIds.length !== 0"
+				:loading="loadingFiles"
 				:base-height="100"
 				:section-header-height="50"
 				:scroll-to-section="targetMonth"
-				@need-content="fetchedFileIds">
+				@need-content="fetchFiles">
 				<template slot-scope="{file, height, visibility}">
 					<h3 v-if="file.sectionHeader"
 						:id="`file-picker-section-header-${file.id}`"
@@ -84,6 +84,7 @@ import FetchFilesMixin from '../mixins/FetchFilesMixin.js'
 import FilesSelectionMixin from '../mixins/FilesSelectionMixin.js'
 import FilesListViewer from './FilesListViewer.vue'
 import File from './File.vue'
+import FilesByMonthMixin from '../mixins/FilesByMonthMixin.js'
 
 export default {
 	name: 'FilesPicker',
@@ -107,6 +108,7 @@ export default {
 
 	mixins: [
 		FetchFilesMixin,
+		FilesByMonthMixin,
 		FilesSelectionMixin,
 	],
 
@@ -119,34 +121,6 @@ export default {
 		return {
 			targetMonth: null,
 		}
-	},
-
-	computed: {
-		/**
-		 * @return {string[]}
-		 */
-		filesListByMonth() {
-			const filesByMonth = {}
-			for (const fileId of Object.keys(this.files)) {
-				const file = this.files[fileId]
-				filesByMonth[file.month] = filesByMonth[file.month] ?? []
-				filesByMonth[file.month].push(file.fileid)
-			}
-
-			// Sort files in sections.
-			Object.keys(filesByMonth).forEach(month => filesByMonth[month].sort(this.sortFilesByTimestamp))
-
-			return filesByMonth
-		},
-
-		/**
-		 * @return {string[]}
-		 */
-		monthsList() {
-			return Object
-				.keys(this.filesListByMonth)
-				.sort((month1, month2) => month1 > month2 ? -1 : 1)
-		},
 	},
 
 	watch: {
@@ -182,6 +156,7 @@ export default {
 
 	&__content {
 		display: flex;
+		align-items: flex-start;
 		flex-grow: 1;
 		height: 500px;
 	}
@@ -191,6 +166,7 @@ export default {
 		overflow: scroll;
 		margin-right: 8px;
 		padding-right: 8px;
+		height: 100%;
 
 		&__month {
 			font-weight: bold;
@@ -213,6 +189,7 @@ export default {
 	&__file-list {
 		flex-grow: 1;
 		min-width: 0;
+		height: 100%;
 
 		.section-header {
 			font-weight: bold;

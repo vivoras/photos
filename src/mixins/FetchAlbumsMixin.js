@@ -22,6 +22,7 @@
 
 import { mapGetters } from 'vuex'
 
+import logger from '../services/logger.js'
 import getAlbums from '../services/Albums.js'
 import cancelableRequest from '../utils/CancelableRequest.js'
 
@@ -65,6 +66,7 @@ export default {
 
 				const albums = await request()
 				this.$store.dispatch('addAlbums', { albums })
+				logger.debug(`Fetched ${albums.length} new files: `, albums)
 			} catch (error) {
 				if (error.response && error.response.status) {
 					if (error.response.status === 404) {

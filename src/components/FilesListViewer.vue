@@ -42,10 +42,11 @@
 						:file="item"
 						:visibility="row.visibility" />
 				</TiledRows>
+				<template v-if="loading" #loader>
+					<Loader class="files-list-viewer__loader" />
+				</template>
 			</VirtualScrolling>
 		</TiledLayout>
-
-		<Loader v-if="loading" />
 	</div>
 </template>
 <script>
@@ -81,7 +82,7 @@ export default {
 			type: Object,
 			default: undefined,
 		},
-		// A list of ordered sections.
+		// The list of sorted sections.
 		sections: {
 			type: Array,
 			default: undefined,
@@ -202,6 +203,7 @@ export default {
 <style lang="scss" scoped>
 .files-list-viewer {
 	height: 100%;
+	position: relative;
 
 	::v-deep .empty-content__icon {
 		width: 200px;
@@ -211,6 +213,10 @@ export default {
 			width: 200px;
 			height: 200px;
 		}
+	}
+
+	&__loader {
+		margin: 50px 0;
 	}
 }
 </style>

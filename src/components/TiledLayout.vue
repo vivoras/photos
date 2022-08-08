@@ -23,7 +23,7 @@
 	<div ref="tiledLayoutContainer"
 		class="tiled-container">
 		<!-- Slot to allow changing the rows before passing them to TiledRows -->
-		<!-- Useful for partially rendering rows like in VirtualScrolling -->
+		<!-- Useful for partially rendering rows like with VirtualScrolling -->
 		<slot :rows="rows">
 			<!-- Default rendering -->
 			<TiledRows :rows="rows" />
@@ -32,6 +32,7 @@
 </template>
 
 <script>
+import logger from '../services/logger.js'
 import { splitItemsInRows } from '../services/TiledLayout.js'
 import TiledRows from './TiledRows.vue'
 
@@ -64,6 +65,8 @@ export default {
 	computed: {
 		/** @return {import('../services/TiledLayout.js').TiledRow[]} */
 		rows() {
+			logger.debug('[TiledLayout] Computing rows', this.items)
+
 			return splitItemsInRows(this.items, this.containerWidth, this.baseHeight)
 		},
 	},

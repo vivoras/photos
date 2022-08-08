@@ -25,6 +25,7 @@
 			class="vs-rows-container"
 			:style="rowsContainerStyle">
 			<slot :rendered-rows="visibleRows" />
+			<slot name="loader" />
 		</div>
 	</div>
 	<div v-else
@@ -32,10 +33,14 @@
 		class="vs-rows-container"
 		:style="rowsContainerStyle">
 		<slot :rendered-rows="visibleRows" />
+		<slot name="loader" />
 	</div>
 </template>
 
 <script>
+import { debounce } from 'debounce'
+
+import logger from '../services/logger.js'
 /**
  * @typedef {object} Row
  * @property {number} height - The height of the row.
@@ -72,7 +77,7 @@ export default {
 		},
 		willBeVisibleWindowRatio: {
 			type: Number,
-			default: 4,
+			default: 5,
 		},
 		visibleWindowRatio: {
 			type: Number,
@@ -104,6 +109,8 @@ export default {
 		 * @return {VisibleRow[]}
 		 */
 		visibleRows() {
+			logger.debug('[VirtualScrolling] Computing visible rows', this.rows)
+
 			// Optimisation: get those computed properties once to not go through vue's internal every time we need them.
 			const scrollPosition = this.scrollPosition
 			const containerHeight = this.containerHeight
@@ -205,6 +212,7 @@ export default {
 		 * @return {HTMLElement}
 		 */
 		container() {
+			logger.debug('[VirtualScrolling] Computing container')
 			if (this.containerElement !== null) {
 				return this.containerElement
 			} else if (this.useWindow) {
@@ -277,13 +285,14 @@ export default {
 	},
 
 	methods: {
-		updateScrollPosition() {
+		updateScrollPosition: debounce(function() {
 			if (this.useWindow) {
 				this.scrollPosition = this.container.scrollY
 			} else {
 				this.scrollPosition = this.container.scrollTop
 			}
-		},
+		}, 200),
+
 		updateContainerSize() {
 			this.containerHeight = window.innerHeight
 		},
@@ -295,5 +304,9 @@ export default {
 .vs-container {
 	overflow-y: scroll;
 	height: 100%;
+}
+
+.vs-rows-container {
+	box-sizing: border-box;
 }
 </style>

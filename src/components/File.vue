@@ -51,8 +51,8 @@
 					@error="onError">
 			</div>
 
-			<!-- image name -->
-			<p :id="ariaDescription" class="file__hidden-description">{{ item.basename }}</p>
+			<!-- image description -->
+			<p :id="ariaDescription" class="file__hidden-description" :class="{show: error}">{{ item.basename }}</p>
 		</a>
 
 		<CheckboxRadioSwitch v-if="allowSelection"
@@ -261,7 +261,9 @@ export default {
 		// Make the checkbox background round on hover.
 		::v-deep .checkbox-radio-switch__label {
 			padding: 10px;
+			box-sizing: border-box;
 
+			// Add a background to the checkbox so we do not see the image through it.
 			&::after {
 				content: '';
 				background: var(--color-primary-light);
@@ -305,6 +307,7 @@ export default {
 				height: 100%;
 				object-fit: cover;
 				position: absolute;
+				color: transparent; /// Hide alt text when loading.
 			}
 
 			.loading-overlay {
@@ -330,6 +333,12 @@ export default {
 			width: 1px;
 			height: 1px;
 			overflow: hidden;
+
+			&.show {
+				position: initial;
+				width: fit-content;
+				height: fit-content;
+			}
 		}
 	}
 }
