@@ -31,7 +31,7 @@
 			<div v-if="item.mime.includes('video') && item.hasPreview" class="icon-video-white" />
 
 			<!-- image and loading placeholder -->
-			<div class="images-container">
+			<div class="file__images">
 				<img v-if="visibility !== 'none' && canLoad && !error"
 					ref="imgNear"
 					:key="`${item.basename}-near`"
@@ -49,21 +49,10 @@
 					:aria-describedby="ariaDescription"
 					@load="onLoad"
 					@error="onError">
-
-				<div v-if="visibility === 'none' || !loaded || error"
-					:key="`${item.basename}-placeholder`"
-					class="loading-overlay">
-					<svg xmlns="http://www.w3.org/2000/svg"
-						viewBox="0 0 32 32"
-						fill="url(#placeholder__gradient)">
-						<use v-if="isImage" href="#placeholder--img" />
-						<use v-else href="#placeholder--video" />
-					</svg>
-				</div>
 			</div>
 
 			<!-- image name -->
-			<p :id="ariaDescription" class="hidden-visually">{{ item.basename }}</p>
+			<p :id="ariaDescription" class="file__hidden-description">{{ item.basename }}</p>
 		</a>
 
 		<CheckboxRadioSwitch v-if="allowSelection"
@@ -230,7 +219,7 @@ export default {
 
 <style lang="scss" scoped>
 .file-container {
-	background: lightgray;
+	background: var(--color-primary-light);
 	position: relative;
 	height: 100%;
 	width: 100%;
@@ -301,7 +290,7 @@ export default {
 		height: 100%;
 		box-sizing: border-box;
 
-		.images-container {
+		&__images {
 			display: contents;
 
 			.icon-video-white {
@@ -332,6 +321,15 @@ export default {
 					height: 70%;
 				}
 			}
+		}
+
+		&__hidden-description {
+			position: absolute;
+			left: -10000px;
+			top: -10000px;
+			width: 1px;
+			height: 1px;
+			overflow: hidden;
 		}
 	}
 }
