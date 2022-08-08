@@ -32,7 +32,7 @@
 
 		<TiledLayout :base-height="baseHeight" :items="items">
 			<VirtualScrolling slot-scope="{rows}"
-				:use-window="true"
+				:use-window="useWindow"
 				:rows="rows"
 				:scroll-to-key="scrollToSection"
 				@need-content="needContent">
