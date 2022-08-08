@@ -28,19 +28,19 @@
 
 		<div class="albums-container">
 			<div v-for="album in albums"
-				:key="album.id"
+				:key="album.basename"
 				class="album"
-				@click="pickAlbum(album.id)">
+				@click="pickAlbum(album.basename)">
 				<img class="album__image" :src="album.cover | toCoverUrl">
 				<div class="album__details">
 					<div class="album__details__first-line">
 						<b class="album__details__name">
-							{{ album.name || "All" }}
+							{{ album.basename }}
 						</b>
 					</div>
 					<div class="album__details__second-line">
 						<!-- TODO: finish Shared count -->
-						{{ n('photos', '%n item', '%n items', album.itemCount) }} ⸱ {{ n('photos', 'Share with %n user', 'Share with %n others', album.isShared) }}
+						{{ n('photos', '%n item', '%n items', album.size) }} ⸱ {{ n('photos', 'Share with %n user', 'Share with %n others', album.isShared) }}
 					</div>
 				</div>
 			</div>
@@ -90,7 +90,7 @@ export default {
 		 * @return {string}
 		 */
 		toCoverUrl(fileId) {
-			return generateUrl(`/core/preview?fileId=${fileId}&x=${64}&y=${64}&forceIcon=0&a=1`)
+			return generateUrl(`/core/preview?fileId=${fileId || 47515}&x=${64}&y=${64}&forceIcon=0&a=1`)
 		},
 	},
 
@@ -110,8 +110,8 @@ export default {
 			this.fetchAlbums()
 		},
 
-		pickAlbum(albumId) {
-			this.$emit('album-picked', albumId)
+		pickAlbum(albumBaseName) {
+			this.$emit('album-picked', albumBaseName)
 		},
 	},
 }

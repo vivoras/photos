@@ -37,11 +37,10 @@ import moment from '@nextcloud/moment'
  * @param {string[]} [options.mimesType=allMimes] Mime type of the files
  * @param {boolean} [options.full=false] get full data of the files
  * @param {boolean} [options.onThisDay=false] get only items from this day of year
- * @param {boolean} [options.onlyFavorites=false] get only favorie items
+ * @param {boolean} [options.onlyFavorites=false] get only favorite items
  * @return {Promise<object[]>} the file list
  */
 export default async function (path = '', options = {}) {
-
 	// default function options
 	options = {
 		firstResult: 0,

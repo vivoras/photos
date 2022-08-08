@@ -89,15 +89,17 @@
 				<Actions />
 			</template>
 
-			<Loader v-if="loadingCount > 0" />
+			<Loader v-if="loadingCount > 0" key="loader" />
 
 			<Modal v-if="showAlbumCreationForm"
+				key="albumCreationForm"
 				:title="t('photos', 'New album')"
 				@close="showAlbumCreationForm = false">
 				<AlbumCreationForm @album-created="showAlbumCreationForm = false" />
 			</Modal>
 
 			<Modal v-if="showAlbumPicker"
+				key="albumPicker"
 				:title="t('photos', 'Add to album')"
 				@close="showAlbumPicker = false">
 				<AlbumPicker @album-picked="addSelectionToAlbum" />
@@ -239,7 +241,7 @@ export default {
 	},
 
 	methods: {
-		...mapActions(['deleteFiles', 'toggleFavoriteForFiles', 'downloadFiles']),
+		...mapActions(['deleteFiles', 'toggleFavoriteForFiles', 'downloadFiles', 'addFilesToAlbum']),
 
 		getContent() {
 			this.fetchFiles('', {
@@ -263,12 +265,11 @@ export default {
 			// TODO: finish when implementing upload
 		},
 
-		async addSelectionToAlbum(albumId) {
-			this.showAlbumPicker = false
+		async addSelectionToAlbum(albumName) {
 			try {
+				this.showAlbumPicker = false
 				this.loadingCount++
-				// TODO: finish add to album
-				// await this.toggleFavoriteForFiles({ fileIds: this.selection, favoriteState: true })
+				await this.addFilesToAlbum({ albumName, fileIdsToAdd: this.selectedFileIds })
 			} catch (error) {
 				logger.error(error)
 			} finally {

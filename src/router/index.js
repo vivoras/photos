@@ -85,11 +85,11 @@ export default new Router({
 			name: 'albums',
 		},
 		{
-			path: '/albums/:albumId*',
+			path: '/albums/:albumName*',
 			component: AlbumContent,
 			name: 'albumContent',
 			props: route => ({
-				albumId: route.params.albumId,
+				albumName: route.params.albumName,
 			}),
 		},
 		{

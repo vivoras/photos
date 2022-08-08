@@ -21,7 +21,7 @@
  -->
 <template>
 	<!-- Errors handlers-->
-	<EmptyContent v-if="errorFetchingFiles === 404" class="empty-content-with-illustration">
+	<EmptyContent v-if="album === undefined && !loadingAlbums" class="empty-content-with-illustration">
 		<template #icon>
 			<!-- eslint-disable-next-line vue/no-v-html -->
 			<span class="empty-content-illustration" v-html="FolderIllustration" />
@@ -35,13 +35,12 @@
 		{{ t('photos', 'An error occurred') }}
 	</EmptyContent>
 
-	<div v-else class="album-container">
-		<div class="album-header">
-			<div class="album-header-left">
-				<div class="album-title">
+	<div v-else class="album">
+		<div class="album__header">
+			<div class="album__header__left">
+				<div class="album__header__title">
 					<b v-if="album !== undefined" class="album-name">
-						<!-- TODO: Remove "All" -->
-						{{ album.name || "All" }}
+						{{ album.basename }}
 
 					</b>
 					<div v-if="album !== undefined" class="album-location">
@@ -51,8 +50,8 @@
 
 				<!-- <Loader v-if="(loadingAlbums || loadingFiles) && fetchedFileIds.length !== 0" /> -->
 			</div>
-			<div v-if="album !== undefined" class="album-actions">
-				<Button v-if="album.itemCount !== 0"
+			<div v-if="album !== undefined" class="album__header__actions">
+				<Button v-if="album.size !== 0"
 					type="tertiary"
 					:aria-label="t('photos', 'Add photos to this album')"
 					@click="showAddPhotosModal = true">
@@ -85,7 +84,7 @@
 			</div>
 		</div>
 
-		<div v-if="album !== undefined && album.itemCount === 0 && !(loadingFiles || loadingAlbums)" class="empty-album">
+		<div v-if="album !== undefined && album.size === 0 && !(loadingFiles || loadingAlbums)" class="album__empty">
 			<EmptyContent>
 				<template #icon>
 					<ImagePlus />
@@ -95,7 +94,7 @@
 				</template>
 			</EmptyContent>
 
-			<Button class="empty-album__button"
+			<Button class="album__empty__button"
 				type="primary"
 				:aria-label="t('photos', 'Add photos to this album')"
 				@click="showAddPhotosModal = true">
@@ -107,11 +106,10 @@
 		</div>
 
 		<FilesListViewer v-if="album !== undefined"
-			class="album-photos"
+			class="album__photos"
 			:use-window="true"
-			:file-ids="albumFiles"
-			:loading="loadingFiles || loadingAlbums"
-			@need-content="fetchAlbumContent">
+			:file-ids="albumFileIds"
+			:loading="loadingFiles || loadingAlbums">
 			<File slot-scope="{file, height, visibility}"
 				:item="files[file.id]"
 				:allow-selection="true"
@@ -126,7 +124,7 @@
 			size="large"
 			:title="t('photos', 'Add photos to the album')"
 			@close="showAddPhotosModal = false">
-			<FilesPicker @files-picked="addFilesToAlbum" />
+			<FilesPicker :blacklist-ids="albumFileIds" @files-picked="handleFilesPicked" />
 		</Modal>
 
 		<Modal v-else-if="showShareModal"
@@ -138,14 +136,16 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
 import MapMarker from 'vue-material-design-icons/MapMarker'
 import ShareVariant from 'vue-material-design-icons/ShareVariant'
 import Plus from 'vue-material-design-icons/Plus'
 import TrashCan from 'vue-material-design-icons/TrashCan'
 import ImagePlus from 'vue-material-design-icons/ImagePlus'
 import AlertCircle from 'vue-material-design-icons/AlertCircle'
+
 import { Actions, ActionButton, Button, Modal, EmptyContent } from '@nextcloud/vue'
+import { getCurrentUser } from '@nextcloud/auth'
 
 import FetchAlbumsMixin from '../mixins/FetchAlbumsMixin.js'
 import FetchFilesMixin from '../mixins/FetchFilesMixin.js'
@@ -156,6 +156,10 @@ import Loader from '../components/Loader.vue'
 import FilesPicker from '../components/FilesPicker.vue'
 import ShareAlbumForm from '../components/ShareAlbumForm.vue'
 import FolderIllustration from '../assets/Illustrations/folder.svg'
+import logger from '../services/logger.js'
+import client from '../services/DavClient.js'
+import DavRequest from '../services/DavRequest.js'
+import cancelableRequest from '../utils/CancelableRequest.js'
 
 export default {
 	name: 'AlbumContent',
@@ -185,7 +189,7 @@ export default {
 	],
 
 	props: {
-		albumId: {
+		albumName: {
 			type: String,
 			default: '/',
 		},
@@ -206,17 +210,17 @@ export default {
 		]),
 
 		/**
-		 * @return {string[]} The album information for the current albumId.
+		 * @return {string[]} The album information for the current albumName.
 		 */
 		album() {
-			return this.albums[this.albumId]
+			return this.albums[this.albumName]
 		},
 
 		/**
-		 * @return {string[]} The list of files for the current albumId.
+		 * @return {string[]} The list of files for the current albumName.
 		 */
-		albumFiles() {
-			return this.albumsFiles[this.albumId] || []
+		albumFileIds() {
+			return this.albumsFiles[this.albumName] || []
 		},
 	},
 
@@ -227,46 +231,107 @@ export default {
 	},
 
 	methods: {
+		...mapActions(['appendFiles', 'deleteAlbum', 'addFilesToAlbum', 'removeFilesFromAlbum']),
+
 		async fetchAlbumContent() {
-			const fileIds = await this.fetchFiles(this.album.name)
-			if (fileIds.length > 0) {
-				this.$store.commit('addFilesToAlbum', { albumId: this.albumId, fileIdsToAdd: fileIds })
+			if (this.loadingFiles) {
+				return []
 			}
+
+			const semaphoreSymbol = await this.semaphore.acquire(() => 0, 'fetchFiles')
+			const fetchSemaphoreSymbol = await this.fetchSemaphore.acquire()
+
+			try {
+				this.errorFetchingFiles = null
+				this.loadingFiles = true
+				this.semaphoreSymbol = semaphoreSymbol
+
+				const { request, cancel } = cancelableRequest(client.getDirectoryContents)
+				this.cancelFilesRequest = cancel
+
+				const fetchedFiles = await request(
+					`/photos/${getCurrentUser()?.uid}/albums/${this.albumName}`,
+					{
+						data: DavRequest,
+					}
+				)
+
+				const fileIds = fetchedFiles.map(file => file.fileid)
+
+				this.appendFiles(fetchedFiles)
+
+				if (fetchedFiles.length > 0) {
+					await this.$store.commit('addFilesToAlbum', { albumName: this.albumName, fileIdsToAdd: fileIds })
+				}
+
+				logger.debug(`[AlbumContent] Fetched ${fileIds.length} new files: `, fileIds)
+			} catch (error) {
+				if (error.response && error.response.status) {
+					if (error.response.status === 404) {
+						this.errorFetchingFiles = 404
+					} else {
+						this.errorFetchingFiles = error
+					}
+				}
+
+				// cancelled request, moving on...
+				logger.error('Error fetching album files', error)
+			} finally {
+				this.loadingFiles = false
+				this.cancelFilesRequest = () => { }
+				this.semaphore.release(semaphoreSymbol)
+				this.fetchSemaphore.release(fetchSemaphoreSymbol)
+			}
+
+			return []
 		},
 
 		openViewer(fileId) {
 			const file = this.files[fileId]
 			OCA.Viewer.open({
 				path: file.filename,
-				list: this.albumFiles.map(fileId => this.files[fileId]).filter(file => !file.sectionHeader),
+				list: this.albumFileIds.map(fileId => this.files[fileId]).filter(file => !file.sectionHeader),
 				loadMore: file.loadMore ? async () => await file.loadMore(true) : () => [],
 				canLoop: file.canLoop,
 			})
 		},
 
-		addFilesToAlbum(fileIds) {
-			this.$store.dispatch('addFilesToAlbum', { albumId: this.albumId, fileIdsToAdd: fileIds })
-			this.showAddPhotosModal = false
+		async handleFilesPicked(fileIds) {
+			try {
+				this.loadingCount++
+				await this.addFilesToAlbum({ albumName: this.albumName, fileIdsToAdd: fileIds })
+				this.showAddPhotosModal = false
+			} catch (error) {
+				logger.error(error)
+			} finally {
+				this.loadingCount--
+			}
 		},
 
-		removeFilesFromAlbum(fileIds) {
-			this.$store.dispatch('removeFilesFromAlbum', { albumId: this.albumId, fileIdsToAdd: fileIds })
+		async removeFilesFromAlbum(fileIds) {
+			try {
+				this.loadingCount++
+				await this.removeFilesFromAlbum({ albumName: this.albumName, fileIdsToAdd: fileIds })
+			} catch (error) {
+				logger.error(error)
+			} finally {
+				this.loadingCount--
+			}
 		},
 
-		// TODO: Check delete album.
-		deleteAlbum() {
-			this.$store.dispatch('deleteAlbum', { albumId: this.albumId })
+		async deleteAlbum() {
+			await this.deleteAlbum({ albumName: this.albumName })
 		},
 	},
 }
 </script>
 <style lang="scss" scoped>
-.album-container {
+.album {
 	display: flex;
 	flex-direction: column;
 	padding: 8px 64px;
 
-	.empty-album {
+	&__empty {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -274,15 +339,16 @@ export default {
 		&__button {
 			margin-top: 32px;
 		}
+
 	}
 
-	.album-header {
+	&__header {
 		display: flex;
 		min-height: 60px;
 		align-items: center;
 		justify-content: space-between;
 
-		.album-title {
+		&__title {
 			min-width: 300px;
 
 			.album-location {
@@ -292,9 +358,9 @@ export default {
 			}
 		}
 
-		.album-actions {
+		&__actions {
 			display: flex;
-			align-items: baseline; // Else children will stretch in height as container is absolutely-positioned.
+			align-items: center;
 
 			button {
 				margin-left: 16px;
@@ -302,7 +368,7 @@ export default {
 		}
 	}
 
-	.album-photos {
+	&__photos {
 		margin-top: 16px;
 		height: 100%;
 		min-height: 0; // Prevent it from overflowing in a flex context.

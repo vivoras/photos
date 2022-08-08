@@ -31,7 +31,7 @@ import allowedMimes from './AllowedMimes.js'
  * @param {string} path the path relative to the user root
  * @param {object} [options] optional options for axios
  * @param {boolean} [options.shared] fetch shared albums ?
- * @return {Array} the file list
+ * @return {Promise<object[]>} the file list
  */
 export default async function (path = '/', options = {}) {
 	const prefixPath = generateUrl(`/apps/photos/api/v1/${options.shared ? 'shared' : 'albums'}`)

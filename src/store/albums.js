@@ -20,8 +20,19 @@
  *
  */
 
-import { createAlbum, deleteAlbum, addFileToAlbum, removeFileFromAlbum } from '../services/AlbumActions.js'
+import { showError } from '@nextcloud/dialogs'
+import { getCurrentUser } from '@nextcloud/auth'
+
+import client from '../services/DavClient.js'
+import logger from '../services/logger.js'
 import Semaphore from '../utils/semaphoreWithPriority.js'
+
+/**
+ * @typedef {object} Album
+ * @property {string} basename - The name of the album.
+ * @property {number} lastmod - The creation date of the album.
+ * @property {string} size - The number of items in the album.
+ */
 
 const state = {
 	albums: {},
@@ -39,7 +50,7 @@ const mutations = {
 	addAlbums(state, { albums }) {
 		state.albums = {
 			...state.albums,
-			...albums.reduce((albums, album) => ({ ...albums, [album.id]: album }), {}),
+			...albums.reduce((albums, album) => ({ ...albums, [album.basename]: album }), {}),
 		}
 	},
 
@@ -48,10 +59,10 @@ const mutations = {
 	 *
 	 * @param {object} state vuex state
 	 * @param {object} data destructuring object
-	 * @param {Array} data.albumIds list of albums ids
+	 * @param {Array} data.albumNames list of albums ids
 	 */
-	removeAlbums(state, { albumIds }) {
-		albumIds.forEach(albumId => delete state.albums[albumId])
+	removeAlbums(state, { albumNames }) {
+		albumNames.forEach(albumName => delete state.albums[albumName])
 	},
 
 	/**
@@ -59,14 +70,14 @@ const mutations = {
 	 *
 	 * @param {object} state vuex state
 	 * @param {object} data destructuring object
-	 * @param {string} data.albumId the album id
+	 * @param {string} data.albumName the album id
 	 * @param {string[]} data.fileIdsToAdd list of files
 	 */
-	addFilesToAlbum(state, { albumId, fileIdsToAdd }) {
-		const albumFiles = state.albumsFiles[albumId] || []
+	addFilesToAlbum(state, { albumName, fileIdsToAdd }) {
+		const albumFiles = state.albumsFiles[albumName] || []
 		state.albumsFiles = {
 			...state.albumsFiles,
-			[albumId]: [
+			[albumName]: [
 				...albumFiles,
 				...fileIdsToAdd.filter(fileId => !albumFiles.includes(fileId)), // Filter to prevent duplicate fileId.
 			],
@@ -78,13 +89,13 @@ const mutations = {
 	 *
 	 * @param {object} state vuex state
 	 * @param {object} data destructuring object
-	 * @param {string} data.albumId the album id
+	 * @param {string} data.albumName the album id
 	 * @param {string[]} data.fileIdsToRemove list of files
 	 */
-	removeFilesFromAlbum(state, { albumId, fileIdsToRemove }) {
+	removeFilesFromAlbum(state, { albumName, fileIdsToRemove }) {
 		state.albumsFiles = {
 			...state.albumsFiles,
-			[albumId]: state.albumsFiles[albumId].filter(fileId => !fileIdsToRemove.includes(fileId)),
+			[albumName]: state.albumsFiles[albumName].filter(fileId => !fileIdsToRemove.includes(fileId)),
 		}
 	},
 }
@@ -100,7 +111,7 @@ const actions = {
 	 *
 	 * @param {object} context vuex context
 	 * @param {object} data destructuring object
-	 * @param {import('../services/Albums').Album[]} data.albums list of albums
+	 * @param {Album[]} data.albums list of albums
 	 */
 	addAlbums(context, { albums }) {
 		context.commit('addAlbums', { albums })
@@ -111,22 +122,30 @@ const actions = {
 	 *
 	 * @param {object} context vuex context
 	 * @param {object} data destructuring object
-	 * @param {string} data.albumId the album id
+	 * @param {string} data.albumName the album name
 	 * @param {string[]} data.fileIdsToAdd list of files ids to add
 	 */
-	async addFilesToAlbum(context, { albumId, fileIdsToAdd }) {
+	async addFilesToAlbum(context, { albumName, fileIdsToAdd }) {
 		const semaphore = new Semaphore(5)
 
-		context.commit('addFilesToAlbum', { albumId, fileIdsToAdd })
+		context.commit('addFilesToAlbum', { albumName, fileIdsToAdd })
 
 		const promises = fileIdsToAdd
 			.map(async (fileId) => {
+				const fileName = context.getters.files[fileId].filename
+				const fileBaseName = context.getters.files[fileId].basename
 				const symbol = await semaphore.acquire()
+
 				try {
-					await addFileToAlbum(albumId, context.state.files[fileId].filename, context.files[fileId].basename)
+					await client.copyFile(
+						`/files/${getCurrentUser()?.uid}/${fileName}`,
+						`/photos/${getCurrentUser()?.uid}/albums/${albumName}/${fileBaseName}`
+					)
 				} catch (error) {
-					console.error(error)
-					context.commit('removeFilesFromAlbum', { albumId, fileIdsToRemove: [fileId] })
+					context.commit('removeFilesFromAlbum', { albumName, fileIdsToRemove: [fileId] })
+
+					logger.error(t('photos', 'Failed to add {fileBaseName} to album {albumName}.', { fileBaseName, albumName }), error)
+					showError(t('photos', 'Failed to add {fileBaseName} to album {albumName}.', { fileBaseName, albumName }))
 				} finally {
 					semaphore.release(symbol)
 				}
@@ -140,22 +159,26 @@ const actions = {
 	 *
 	 * @param {object} context vuex context
 	 * @param {object} data destructuring object
-	 * @param {string} data.albumId the album id
+	 * @param {string} data.albumName the album name
 	 * @param {string[]} data.fileIdsToRemove list of files ids to remove
 	 */
-	async removeFilesFromAlbum(context, { albumId, fileIdsToRemove }) {
+	async removeFilesFromAlbum(context, { albumName, fileIdsToRemove }) {
 		const semaphore = new Semaphore(5)
 
-		context.commit('removeFilesFromAlbum', { albumId, fileIdsToRemove })
+		context.commit('removeFilesFromAlbum', { albumName, fileIdsToRemove })
 
 		const promises = fileIdsToRemove
 			.map(async (fileId) => {
+				const fileBaseName = context.getters.files[fileId].basename
 				const symbol = await semaphore.acquire()
+
 				try {
-					await removeFileFromAlbum(albumId, context.state.files[fileId].basename)
+					await client.deleteFile(`/photos/${getCurrentUser()?.uid}/albums/${albumName}/${fileBaseName}`)
 				} catch (error) {
-					console.error(error)
-					context.commit('addFilesToAlbum', { albumId, fileIdsToAdd: [fileId] })
+					context.commit('addFilesToAlbum', { albumName, fileIdsToAdd: [fileId] })
+
+					logger.error(t('photos', 'Failed to delete {fileBaseName}.', { fileBaseName }), error)
+					showError(t('photos', 'Failed to delete {fileBaseName}.', { fileBaseName }))
 				} finally {
 					semaphore.release(symbol)
 				}
@@ -169,14 +192,41 @@ const actions = {
 	 *
 	 * @param {object} context vuex context
 	 * @param {object} data destructuring object
-	 * @param {import('../services/Albums.js').Album} data.album the album
+	 * @param {Album} data.album the album
 	 */
 	async createAlbum(context, { album }) {
 		try {
-			await createAlbum(album)
+			await client.createDirectory(`/photos/${getCurrentUser()?.uid}/albums/${album.name}`)
 			context.commit('addAlbums', { albums: [album] })
 		} catch (error) {
-			console.error(error)
+			logger.error(t('photos', 'Failed to create {albumName}.', { albumName: album.name }), error)
+			showError(t('photos', 'Failed to create {albumName}.', { albumName: album.name }))
+		}
+	},
+
+	/**
+	 * Rename an album.
+	 *
+	 * @param {object} context vuex context
+	 * @param {object} data destructuring object
+	 * @param {string} data.currentAlbumName - The current name of the album.
+	 * @param {string} data.newAlbumName - The wanted name for the album.
+	 */
+	async renameAlbum(context, { currentAlbumName, newAlbumName }) {
+		let album = state.albums[currentAlbumName]
+
+		try {
+			context.commit('removeAlbums', { albumNames: [currentAlbumName] })
+
+			album = await client.moveFile(
+				`/photos/${getCurrentUser()?.uid}/albums/${currentAlbumName}`,
+				{ destinationFilename: newAlbumName }
+			)
+		} catch (error) {
+			logger.error(t('photos', 'Failed to rename {currentAlbumName} to {newAlbumName}.', { currentAlbumName, newAlbumName }), error)
+			showError(t('photos', 'Failed to rename {currentAlbumName} to {newAlbumName}.', { currentAlbumName, newAlbumName }))
+		} finally {
+			context.commit('addAlbums', { albums: [album] })
 		}
 	},
 
@@ -185,14 +235,15 @@ const actions = {
 	 *
 	 * @param {object} context vuex context
 	 * @param {object} data destructuring object
-	 * @param {string} data.albumId the id of the album
+	 * @param {string} data.albumName the id of the album
 	 */
-	async deleteAlbum(context, { albumId }) {
+	async deleteAlbum(context, { albumName }) {
 		try {
-			await deleteAlbum(albumId)
-			context.commit('removeAlbums', { albumIds: [albumId] })
+			await client.deleteFile(`/files/${getCurrentUser()?.uid}/${albumName}`)
+			context.commit('removeAlbums', { albumNames: [albumName] })
 		} catch (error) {
-			console.error(error)
+			logger.error(t('photos', 'Failed to delete {albumName}.', { albumName }), error)
+			showError(t('photos', 'Failed to delete {albumName}.', { albumName }))
 		}
 	},
 }

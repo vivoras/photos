@@ -38,7 +38,7 @@
 				:base-height="100"
 				:section-header-height="50"
 				:scroll-to-section="targetMonth"
-				@need-content="fetchFiles">
+				@need-content="getFiles">
 				<template slot-scope="{file, height, visibility}">
 					<h3 v-if="file.sectionHeader"
 						:id="`file-picker-section-header-${file.id}`"
@@ -112,9 +112,12 @@ export default {
 		FilesSelectionMixin,
 	],
 
-	// TODO: add filter out ids
+	// List of file ids to not show.
 	props: {
-
+		blacklistIds: {
+			type: Array,
+			default: [],
+		},
 	},
 
 	data() {
@@ -132,13 +135,8 @@ export default {
 	},
 
 	methods: {
-		/**
-		 * @param {string} fileId1 The first file ID
-		 * @param {string} fileId2 The second file ID
-		 * @return {-1 | 1}
-		 */
-		sortFilesByTimestamp(fileId1, fileId2) {
-			return this.files[fileId1].timestamp > this.files[fileId2].timestamp ? -1 : 1
+		getFiles() {
+			this.fetchFiles('', {}, this.blacklistIds)
 		},
 
 		emitPickedEvent() {

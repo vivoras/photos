@@ -22,8 +22,11 @@
 
 import { mapGetters } from 'vuex'
 
+import { showError } from '@nextcloud/dialogs'
+import { getCurrentUser } from '@nextcloud/auth'
+
+import client from '../services/DavClient.js'
 import logger from '../services/logger.js'
-import getAlbums from '../services/Albums.js'
 import cancelableRequest from '../utils/CancelableRequest.js'
 
 export default {
@@ -61,12 +64,12 @@ export default {
 				this.loadingAlbums = true
 				this.errorFetchingAlbums = null
 
-				const { request, cancel } = cancelableRequest(getAlbums)
+				const { request, cancel } = cancelableRequest(client.getDirectoryContents)
 				this.cancelAlbumsRequest = cancel
 
-				const albums = await request()
+				const albums = await request(`/photos/${getCurrentUser()?.uid}/albums`)
 				this.$store.dispatch('addAlbums', { albums })
-				logger.debug(`Fetched ${albums.length} new files: `, albums)
+				logger.debug(`[FetchAlbumsMixin] Fetched ${albums.length} new files: `, albums)
 			} catch (error) {
 				if (error.response && error.response.status) {
 					if (error.response.status === 404) {
@@ -75,8 +78,8 @@ export default {
 						this.errorFetchingAlbums = error
 					}
 				}
-				// cancelled request, moving on...
-				console.error('Error fetching albums', error)
+				logger.error(t('photos', 'Failed to fetch albums list.'), error)
+				showError(t('photos', 'Failed to fetch albums list.'))
 			} finally {
 				this.cancelAlbumsRequest = () => { }
 				this.loadingAlbums = false

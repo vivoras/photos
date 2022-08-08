@@ -26,8 +26,8 @@
 	</EmptyContent>
 
 	<!-- Album list -->
-	<div v-else class="photos-albums">
-		<div class="albums-header">
+	<div v-else class="albums">
+		<div class="albums__header">
 			<Button :aria-label="t('photo', 'Create a new album.')" @click="showAlbumCreationForm = true">
 				<template #icon>
 					<Plus />
@@ -36,36 +36,53 @@
 			</Button>
 
 			<Loader v-if="loadingAlbums" />
-
-			<Modal v-if="showAlbumCreationForm"
-				:title="t('photos', 'New album')"
-				@close="showAlbumCreationForm = false">
-				<AlbumCreationForm @album-created="showAlbumCreationForm = false" />
-			</Modal>
-		</div>
-
-		<div v-if="albums.length !== 0" class="albums-container">
-			<AlbumCover v-for="album in albums"
-				:key="album.id"
-				class="album"
-				:album-id="album.id" />
 		</div>
 
 		<!-- No albums -->
-		<EmptyContent v-else-if="albums.length === 0 && !loadingAlbums" key="emptycontent" illustration-name="empty">
-			{{ t('photos', 'No albums yet.') }}
-		</EmptyContent>
+		<div v-if="noAlbums && !loadingAlbums" class="albums__empty">
+			<EmptyContent>
+				<template #icon>
+					<FolderMultipleImage />
+				</template>
+				<template #desc>
+					{{ t('photos', "There is no album yet!") }}
+				</template>
+			</EmptyContent>
+
+			<Button class="albums__empty__button"
+				type="primary"
+				:aria-label="t('photos', 'Create a new album')"
+				@click="showAlbumCreationForm = true">
+				<template #icon>
+					<Plus />
+				</template>
+				{{ t('photos', "Add") }}
+			</Button>
+		</div>
+
+		<div v-else-if="!noAlbums" class="albums__list">
+			<AlbumCover v-for="album in albums"
+				:key="album.basename"
+				class="album"
+				:base-name="album.basename" />
+		</div>
+
+		<Modal v-if="showAlbumCreationForm"
+			:title="t('photos', 'New album')"
+			@close="showAlbumCreationForm = false">
+			<AlbumCreationForm @album-created="showAlbumCreationForm = false" />
+		</Modal>
 	</div>
 </template>
 
 <script>
 import Plus from 'vue-material-design-icons/Plus'
+import FolderMultipleImage from 'vue-material-design-icons/FolderMultipleImage'
 
-import { Button, Modal } from '@nextcloud/vue'
+import { Button, Modal, EmptyContent } from '@nextcloud/vue'
 
 import FetchAlbumsMixin from '../mixins/FetchAlbumsMixin.js'
 import AlbumCover from '../components/AlbumCover.vue'
-import EmptyContent from '../components/EmptyContent.vue'
 import AlbumCreationForm from '../components/AlbumCreationForm.vue'
 import Loader from '../components/Loader.vue'
 
@@ -79,6 +96,7 @@ export default {
 		Modal,
 		Button,
 		Plus,
+		FolderMultipleImage,
 	},
 
 	mixins: [
@@ -90,10 +108,19 @@ export default {
 			showAlbumCreationForm: false,
 		}
 	},
+
+	computed: {
+		/**
+		 * @return {boolean} Whether the list of album is empty or not.
+		 */
+		noAlbums() {
+			return Object.keys(this.albums).length === 0
+		},
+	},
 }
 </script>
 <style lang="scss" scoped>
-.photos-albums {
+.albums {
 	height: 100%;
 	display: flex;
 	flex-direction: column;
@@ -104,7 +131,7 @@ export default {
 		padding: 4px 32px;
 	}
 
-	.albums-header {
+	&__header {
 		display: flex;
 		min-height: 60px;
 		align-items: center;
@@ -114,7 +141,7 @@ export default {
 		}
 	}
 
-	.albums-container {
+	&__list {
 		margin-top: 8px;
 		padding-top: 24px;
 		padding-bottom: 32px;
@@ -123,6 +150,26 @@ export default {
 		flex-wrap: wrap;
 		overflow: scroll;
 		gap: 32px;
+	}
+
+	&__empty {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+
+		&__button {
+			margin-top: 32px;
+		}
+	}
+}
+
+.empty-content-with-illustration ::v-deep .empty-content__icon {
+	width: 200px;
+	height: 200px;
+
+	svg {
+		width: 200px;
+		height: 200px;
 	}
 }
 </style>

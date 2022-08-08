@@ -66,11 +66,12 @@ export default {
 
 	methods: {
 		/**
-		 * @param {string} path - Path to pass to getPhotos
-		 * @param {object} options - Options to pass to getPhotos
+		 * @param {string} path - Path to pass to getPhotos.
+		 * @param {object} options - Options to pass to getPhotos.
+		 * @param {string[]} [blacklist=[]] - Array of ids to filter out.
 		 * @return {Promise<string[]>} - The next batch of data depending on global offset.
 		*/
-		async fetchFiles(path = '', options = {}) {
+		async fetchFiles(path = '', options = {}, blacklist = []) {
 			if (this.doneFetchingFiles || this.loadingFiles) {
 				return []
 			}
@@ -101,11 +102,11 @@ export default {
 				}
 
 				const fileIds = fetchedFiles.map(file => file.fileid).filter(fileId => !this.fetchedFileIds.includes(fileId)) // Filter to prevent duplicate fileIds.
-				this.fetchedFileIds.push(...fileIds)
+				this.fetchedFileIds.push(...fileIds.filter((fileId) => !blacklist.includes(fileId)))
 
 				this.$store.dispatch('appendFiles', fetchedFiles)
 
-				logger.debug(`Fetched ${fileIds.length} new files: `, fileIds)
+				logger.debug(`[FetchFilesMixin] Fetched ${fileIds.length} new files: `, fileIds)
 
 				return fileIds
 			} catch (error) {

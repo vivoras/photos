@@ -36,7 +36,8 @@ export default {
 			}
 
 			// Sort files in sections.
-			Object.keys(filesByMonth).forEach(month => filesByMonth[month].sort(this.sortFilesByTimestamp))
+			Object.keys(filesByMonth)
+				.forEach(month => filesByMonth[month].sort(this.sortFilesByTimestamp))
 
 			return filesByMonth
 		},

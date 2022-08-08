@@ -21,13 +21,12 @@
  -->
 
 <template>
-	<router-link class="album-cover" :to="`/albums/${albumId}`">
+	<router-link class="album-cover" :to="`/albums/${baseName}`">
 		<img class="album-cover__image" :src="coverUrl">
 		<div class="album-cover__details">
 			<div class="album-cover__details__first-line">
 				<h2 class="album-cover__details__name">
-					<!-- TODO: Remove "All" -->
-					{{ album.name || "All" }}
+					{{ baseName }}
 				</h2>
 				<div class="album-cover__details__state">
 					<ShareVariant v-if="album.isShared" />
@@ -35,7 +34,7 @@
 				</div>
 			</div>
 			<div class="album-cover__details__second-line">
-				{{ prettyCreationDate }} ⸱ {{ n('photos', '%n item', '%n items', album.itemCount,) }}
+				{{ prettyCreationDate }} ⸱ {{ n('photos', '%n item', '%n items', album.size,) }}
 			</div>
 		</div>
 	</router-link>
@@ -59,7 +58,7 @@ export default {
 	},
 
 	props: {
-		albumId: {
+		baseName: {
 			type: String,
 			required: true,
 		},
@@ -75,21 +74,21 @@ export default {
 		 * @return {Album}
 		 */
 		album() {
-			return this.albums[this.albumId]
+			return this.albums[this.baseName]
 		},
 
 		/**
 		 * @return {string}
 		 */
 		coverUrl() {
-			return generateUrl(`/core/preview?fileId=${this.album.cover}&x=${512}&y=${512}&forceIcon=0&a=1`)
+			return generateUrl(`/core/preview?fileId=${this.album.cover || 47515}&x=${512}&y=${512}&forceIcon=0&a=1`)
 		},
 
 		/**
 		 * @param {string}
 		 */
 		prettyCreationDate() {
-			return moment.unix(this.album.creationDate).format('MMMM YYYY')
+			return moment.unix(this.album.lastmod).format('MMMM YYYY')
 		},
 	},
 }
