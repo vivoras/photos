@@ -49,7 +49,7 @@
 					</div>
 				</div>
 
-				<Loader v-if="(loadingAlbums || loadingFiles) && nbFetchedFiles !== 0" />
+				<Loader v-if="(loadingAlbums || loadingFiles) && fetchedFileIds.length !== 0" />
 			</div>
 			<div v-if="album !== undefined" class="album-actions">
 				<Button v-if="album.itemCount !== 0"
@@ -108,14 +108,14 @@
 
 		<FilesListViewer v-if="album !== undefined"
 			class="album-photos"
-			:files-ids="albumFiles"
-			:loading="(loadingFiles || loadingAlbums) && nbFetchedFiles !== 0"
+			:use-window="true"
+			:file-ids="albumFiles"
+			:loading="(loadingFiles || loadingAlbums) && fetchedFileIds.length !== 0"
 			@need-content="fetchAlbumContent">
 			<File slot-scope="{file, height, visibility}"
 				:item="files[file.id]"
 				:allow-selection="true"
 				:selected="selection[file.id] === true"
-				:style="{ width: `${height * file.ratio}px`, height: `${height}px`}"
 				:visibility="visibility"
 				:semaphore="semaphore"
 				@click="openViewer"
@@ -228,9 +228,9 @@ export default {
 
 	methods: {
 		async fetchAlbumContent() {
-			const files = await this.fetchFiles(this.album.name)
-			if (files.length > 0) {
-				this.$store.commit('addFilesToAlbum', { albumId: this.albumId, fileIdsToAdd: files.map(file => file.fileid) })
+			const fileIds = await this.fetchFiles(this.album.name)
+			if (fileIds.length > 0) {
+				this.$store.commit('addFilesToAlbum', { albumId: this.albumId, fileIdsToAdd: fileIds })
 			}
 		},
 

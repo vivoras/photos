@@ -72,7 +72,7 @@ export default {
 
 	props: {
 		// Array of file ids that should be rendered.
-		filesIds: {
+		fileIds: {
 			type: Array,
 			default: undefined,
 		},
@@ -142,7 +142,7 @@ export default {
 				return []
 			}
 
-			return this.filesIds.map(this.mapFileToItem)
+			return this.fileIds.map(this.mapFileToItem)
 		},
 
 		/**
@@ -169,7 +169,7 @@ export default {
 		 * @return {object[]} The list of items to pass to TiledLayout.
 		 */
 		items() {
-			if (this.filesIds !== undefined) {
+			if (this.fileIds !== undefined) {
 				return this.fileIdsToItems
 			}
 

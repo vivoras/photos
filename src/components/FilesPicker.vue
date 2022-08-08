@@ -34,11 +34,11 @@
 			<FilesListViewer class="file-picker__file-list"
 				:file-ids-by-section="filesListByMonth"
 				:sections="monthsList"
-				:loading="loadingFiles && nbFetchedFiles !== 0"
+				:loading="loadingFiles && fetchedFileIds.length !== 0"
 				:base-height="100"
 				:section-header-height="50"
 				:scroll-to-section="targetMonth"
-				@need-content="fetchFiles">
+				@need-content="fetchedFileIds">
 				<template slot-scope="{file, height, visibility}">
 					<h3 v-if="file.sectionHeader"
 						:id="`file-picker-section-header-${file.id}`"
@@ -50,7 +50,6 @@
 						:item="files[file.id]"
 						:allow-selection="true"
 						:selected="selection[file.id] === true"
-						:style="{ width: `${height * file.ratio}px`, height: `${height}px`}"
 						:visibility="visibility"
 						:semaphore="semaphore"
 						@select-toggled="onFileSelectToggle" />

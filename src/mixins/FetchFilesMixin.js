@@ -34,16 +34,28 @@ export default {
 		return {
 			errorFetchingFiles: null,
 			loadingFiles: false,
-			nbFetchedFiles: 0,
 			doneFetchingFiles: false,
 			cancelFilesRequest: () => { },
 			semaphore: new SemaphoreWithPriority(30),
+			fetchSemaphore: new SemaphoreWithPriority(1),
 			semaphoreSymbol: null,
+			fetchedFileIds: [],
 		}
 	},
 
 	beforeDestroy() {
-		this.cancelFilesRequest('Changed view')
+		if (this.cancelFilesRequest) {
+			this.cancelFilesRequest('Changed view')
+		}
+	},
+
+	beforeRouteLeave(from, to, next) {
+		if (this.cancelFilesRequest) {
+			this.cancelFilesRequest('Changed view')
+		}
+
+		this.resetFetchFilesState()
+		return next()
 	},
 
 	computed: {
@@ -56,17 +68,20 @@ export default {
 		/**
 		 * @param {string} path - Path to pass to getPhotos
 		 * @param {object} options - Options to pass to getPhotos
-		 * @return {Promise<Array>} - The next batch of data depending on global offset.
+		 * @return {Promise<string[]>} - The next batch of data depending on global offset.
 		*/
 		async fetchFiles(path = '', options = {}) {
 			if (this.doneFetchingFiles || this.loadingFiles) {
 				return []
 			}
 
+			const semaphoreSymbol = await this.semaphore.acquire(() => 0, 'fetchFiles')
+			const fetchSemaphoreSymbol = await this.fetchSemaphore.acquire()
+
 			try {
 				this.errorFetchingFiles = null
 				this.loadingFiles = true
-				this.semaphoreSymbol = await this.semaphore.acquire(() => 0, 'fetchFiles')
+				this.semaphoreSymbol = semaphoreSymbol
 
 				const { request, cancel } = cancelableRequest(getPhotos)
 				this.cancelFilesRequest = cancel
@@ -74,23 +89,23 @@ export default {
 				const numberOfImagesPerBatch = 1000
 
 				// Load next batch of images
-				const files = await request(path, {
-					// We reuse already fetched files in the store when moving from one tab to another, but to make sure that we have all the files, we keep an internal counter (nbFetchedFiles).
-					// Some files will be fetched twice, but we have less loading time when switching between tabs.
-					firstResult: this.nbFetchedFiles,
+				const fetchedFiles = await request(path, {
+					firstResult: this.fetchedFileIds.length,
 					nbResults: numberOfImagesPerBatch,
 					...options,
 				})
 
 				// If we get less files than requested that means we got to the end
-				if (files.length !== numberOfImagesPerBatch) {
+				if (fetchedFiles.length !== numberOfImagesPerBatch) {
 					this.doneFetchingFiles = true
 				}
 
-				this.nbFetchedFiles += files.length
+				const fileIds = fetchedFiles.map(file => file.fileid).filter(fileId => !this.fetchedFileIds.includes(fileId)) // Filter to prevent duplicate fileId.
+				this.fetchedFileIds.push(...fileIds)
 
-				this.$store.dispatch('appendFiles', files)
-				return files
+				this.$store.dispatch('appendFiles', fetchedFiles)
+
+				return fileIds
 			} catch (error) {
 				if (error.response && error.response.status) {
 					if (error.response.status === 404) {
@@ -105,8 +120,8 @@ export default {
 			} finally {
 				this.loadingFiles = false
 				this.cancelFilesRequest = () => { }
-				this.semaphore.release(this.semaphoreSymbol)
-				this.semaphoreSymbol = null
+				this.semaphore.release(semaphoreSymbol)
+				this.fetchSemaphore.release(fetchSemaphoreSymbol)
 			}
 
 			return []
@@ -116,9 +131,8 @@ export default {
 			this.doneFetchingFiles = false
 			this.errorFetchingFiles = null
 			this.loadingFiles = false
-			// TODO: deprecate as it can leads to loading weirdness
-			// Store timeline state locally
-			this.nbFetchedFiles = 0
+			this.fetchedFileIds = []
+			this.cancelFilesRequest = () => { }
 		},
 	},
 }

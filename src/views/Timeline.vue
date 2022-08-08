@@ -89,7 +89,7 @@
 				<Actions />
 			</template>
 
-			<Loader v-if="(nbFetchedFiles === 0 && loadingFiles) || loadingCount > 0" />
+			<Loader v-if="loadingCount > 0" />
 
 			<Modal v-if="showAlbumCreationForm"
 				:title="t('photos', 'New album')"
@@ -109,7 +109,7 @@
 			:use-window="true"
 			:file-ids-by-section="fileIdsByMonth"
 			:sections="monthsList"
-			:loading="loadingFiles && nbFetchedFiles !== 0"
+			:loading="loadingFiles"
 			:empty-message="t('photos', 'No photos in here')"
 			@need-content="getContent">
 			<template slot-scope="{file, visibility}">
@@ -198,13 +198,9 @@ export default {
 		FilesByMonthMixin,
 	],
 
-	beforeRouteLeave(from, to, next) {
-		// cancel any pending requests
-		if (this.cancelFilesRequest) {
-			this.cancelFilesRequest('Changed view')
-		}
-		this.resetState()
-		return next()
+	beforeRouteLeave(to, from, next) {
+		window.scrollTo(0, 0)
+		next()
 	},
 
 	props: {
@@ -240,28 +236,6 @@ export default {
 			// Favorite all selection if at least one file is not on the favorites.
 			return this.selectedFileIds.some((fileId) => this.$store.state.files.files[fileId].favorite === 0)
 		},
-
-		// TODO: make today work
-		// const today = moment().format('DDMM')
-	},
-
-	watch: {
-		$route(from, to) {
-			// cancel any pending requests
-			if (this.cancelFilesRequest) {
-				this.cancelFilesRequest('Changed view')
-			}
-			this.resetState()
-			// TODO: Remove when timeline state is stored locally
-			this.getContent()
-		},
-	},
-
-	beforeDestroy() {
-		// cancel any pending requests
-		if (this.cancelFilesRequest) {
-			this.cancelFilesRequest('Changed view')
-		}
 	},
 
 	methods: {
@@ -273,14 +247,6 @@ export default {
 				onThisDay: this.onThisDay,
 				onlyFavorites: this.onlyFavorites,
 			})
-		},
-
-		/**
-		 * Reset this component data to a pristine state
-		 */
-		resetState() {
-			this.resetFetchFilesState()
-			this.$refs.filesListViewer?.$el.getElementsByClassName('vs-container')[0].scrollTo(0, 0)
 		},
 
 		openViewer(fileId) {
@@ -313,7 +279,7 @@ export default {
 		async favoriteSelection() {
 			try {
 				this.loadingCount++
-				await this.toggleFavoriteForFiles({ fileIds: this.selection, favoriteState: true })
+				await this.toggleFavoriteForFiles({ fileIds: this.selectedFileIds, favoriteState: true })
 			} catch (error) {
 				logger.error(error)
 			} finally {
@@ -324,7 +290,7 @@ export default {
 		async unFavoriteSelection() {
 			try {
 				this.loadingCount++
-				await this.toggleFavoriteForFiles({ fileIds: this.selection, favoriteState: false })
+				await this.toggleFavoriteForFiles({ fileIds: this.selectedFileIds, favoriteState: false })
 			} catch (error) {
 				logger.error(error)
 			} finally {
@@ -335,9 +301,10 @@ export default {
 		async deleteSelection() {
 			try {
 				this.loadingCount++
-				const items = this.selection
-				this.$emit('uncheck-items', items)
-				await this.deleteFiles(items)
+				// Need to store the file ids so it is not changed before the deleteFiles call.
+				const files = this.selectedFileIds
+				this.$emit('uncheck-items', files)
+				await this.deleteFiles(files)
 			} catch (error) {
 				logger.error(error)
 			} finally {
@@ -348,7 +315,7 @@ export default {
 		async downloadSelection() {
 			try {
 				this.loadingCount++
-				await this.downloadFiles(this.selection)
+				await this.downloadFiles(this.selectedFileIds)
 			} catch (error) {
 				logger.error(error)
 			} finally {
@@ -360,7 +327,6 @@ export default {
 </script>
 <style lang="scss" scoped>
 .timeline {
-	height: calc(100vh - var(--header-height));
 	display: flex;
 	flex-direction: column;
 	padding: 4px 64px;
@@ -369,6 +335,9 @@ export default {
 		display: flex;
 		min-height: 60px;
 		align-items: center;
+		position: fixed;
+		width: 100%;
+		height: 60px;
 
 		& > * {
 			margin-right: 8px;
@@ -380,7 +349,7 @@ export default {
 	}
 
 	&__file-list {
-		margin-top: 8px;
+		margin-top: 60px;
 
 		.section-header {
 			padding: 24px 0 16px 0;

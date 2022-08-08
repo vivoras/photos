@@ -29,7 +29,7 @@ export default {
 		 */
 		fileIdsByMonth() {
 			const filesByMonth = {}
-			for (const fileId of Object.keys(this.files)) {
+			for (const fileId of this.fetchedFileIds) {
 				const file = this.files[fileId]
 				filesByMonth[file.month] = filesByMonth[file.month] ?? []
 				filesByMonth[file.month].push(file.fileid)
