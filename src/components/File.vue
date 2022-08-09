@@ -28,10 +28,10 @@
 			:aria-label="ariaLabel"
 			@click.prevent="emitClick">
 
-			<div v-if="item.mime.includes('video') && item.hasPreview" class="icon-video-white" />
-
 			<!-- image and loading placeholder -->
 			<div class="file__images">
+				<VideoIcon v-if="item.mime.includes('video')" class="video-icon" size="64" />
+
 				<img v-if="visibility !== 'none' && canLoad && !error"
 					ref="imgNear"
 					:key="`${item.basename}-near`"
@@ -61,10 +61,15 @@
 			@update:checked="onToggle">
 			<span class="input-label">{{ t('photos', 'Select image {imageName}', {imageName: item.basename}) }}</span>
 		</CheckboxRadioSwitch>
+
+		<Star v-if="item.favorite === 1" class="favorite-state" />
 	</div>
 </template>
 
 <script>
+import Star from 'vue-material-design-icons/Star'
+import VideoIcon from 'vue-material-design-icons/Video.vue'
+
 import { generateRemoteUrl, generateUrl } from '@nextcloud/router'
 import { getCurrentUser } from '@nextcloud/auth'
 import { CheckboxRadioSwitch } from '@nextcloud/vue'
@@ -76,6 +81,8 @@ export default {
 	name: 'File',
 	components: {
 		CheckboxRadioSwitch,
+		Star,
+		VideoIcon,
 	},
 	mixins: [UserConfig],
 	inheritAttrs: false,
@@ -242,10 +249,76 @@ export default {
 		}
 	}
 
+	.file {
+		width: 100%;
+		height: 100%;
+		box-sizing: border-box;
+
+		&__images {
+			display: contents;
+
+			.video-icon {
+				position: absolute;
+				top: 0px;
+				right: 0px;
+				width: 100%;
+				height: 100%;
+				z-index: 1;
+				opacity: 0.8;
+
+				::v-deep .material-design-icon__svg {
+					fill: var(--color-main-background);
+				}
+			}
+
+			img {
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+				position: absolute;
+				color: transparent; /// Hide alt='' text when loading.
+			}
+
+			.loading-overlay {
+				position: absolute;
+				height: 100%;
+				width: 100%;
+				display: flex;
+				align-content: center;
+				align-items: center;
+				justify-content: center;
+
+				svg {
+					width: 70%;
+					height: 70%;
+				}
+			}
+		}
+
+		&__hidden-description {
+			position: absolute;
+			left: -10000px;
+			top: -10000px;
+			width: 1px;
+			height: 1px;
+			overflow: hidden;
+
+			&.show {
+				position: initial;
+				width: fit-content;
+				height: fit-content;
+			}
+		}
+	}
+
 	// Reveal checkbox on hover.
 	&:hover, &.selected, &:focus-within {
 		.selection-checkbox {
 			display: flex;
+		}
+
+		.favorite-state {
+			display: none;
 		}
 	}
 
@@ -287,58 +360,14 @@ export default {
 		}
 	}
 
-	.file {
-		width: 100%;
-		height: 100%;
-		box-sizing: border-box;
+	.favorite-state {
+		position: absolute;
+		top: 2px;
+		// Fancy calculation to render the start in the middle of narrow images.
+		right: min(2px, calc(50% - 7px));
 
-		&__images {
-			display: contents;
-
-			.icon-video-white {
-				position: absolute;
-				top: 10px;
-				right: 10px;
-				z-index: 20;
-			}
-
-			img {
-				width: 100%;
-				height: 100%;
-				object-fit: cover;
-				position: absolute;
-				color: transparent; /// Hide alt text when loading.
-			}
-
-			.loading-overlay {
-				position: absolute;
-				height: 100%;
-				width: 100%;
-				display: flex;
-				align-content: center;
-				align-items: center;
-				justify-content: center;
-
-				svg {
-					width: 70%;
-					height: 70%;
-				}
-			}
-		}
-
-		&__hidden-description {
-			position: absolute;
-			left: -10000px;
-			top: -10000px;
-			width: 1px;
-			height: 1px;
-			overflow: hidden;
-
-			&.show {
-				position: initial;
-				width: fit-content;
-				height: fit-content;
-			}
+		::v-deep .material-design-icon__svg {
+			fill: #FC0;
 		}
 	}
 }

@@ -330,7 +330,7 @@ export default {
 .timeline {
 	display: flex;
 	flex-direction: column;
-	padding: 4px 64px;
+	padding: 0 64px;
 
 	&__header {
 		display: flex;
@@ -339,6 +339,9 @@ export default {
 		position: fixed;
 		width: 100%;
 		height: 60px;
+		position: fixed;
+		z-index: 3;
+		background: var(--color-main-background);
 
 		& > * {
 			margin-right: 8px;

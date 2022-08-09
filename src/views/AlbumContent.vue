@@ -438,6 +438,9 @@ export default {
 		min-height: 60px;
 		align-items: center;
 		justify-content: space-between;
+		position: fixed;
+		z-index: 3;
+		background: var(--color-main-background);
 
 		&__left {
 			height: 100%;
