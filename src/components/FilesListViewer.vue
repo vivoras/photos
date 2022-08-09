@@ -36,12 +36,19 @@
 				:rows="rows"
 				:scroll-to-key="scrollToSection"
 				@need-content="needContent">
-				<TiledRows slot-scope="{renderedRows}" :rows="renderedRows">
-					<!-- TODO: rename file to item -->
-					<slot slot-scope="{row, item}"
-						:file="item"
-						:visibility="row.visibility" />
-				</TiledRows>
+				<ul slot-scope="{renderedRows}">
+					<div v-for="row of renderedRows"
+						:key="row.key"
+						class="tiled-row"
+						:class="{'files-list-viewer__section-header': row.items[0].sectionHeader}"
+						:style="{height: `${row.height}px`}">
+						<li v-for="item of row.items"
+							:key="item.id"
+							:style="{ width: item.ratio ? `${row.height * item.ratio}px` : '100%', height: `${row.height}px`}">
+							<slot :file="item" :visibility="row.visibility" />
+						</li>
+					</div>
+				</ul>
 				<template v-if="loading" #loader>
 					<Loader class="files-list-viewer__loader" />
 				</template>
@@ -55,7 +62,6 @@ import { mapGetters } from 'vuex'
 import { EmptyContent } from '@nextcloud/vue'
 
 import TiledLayout from '../components/TiledLayout.vue'
-import TiledRows from '../components/TiledRows.vue'
 import VirtualScrolling from '../components/VirtualScrolling.vue'
 import Loader from '../components/Loader.vue'
 import EmptyBox from '../assets/Illustrations/empty.svg'
@@ -66,7 +72,6 @@ export default {
 	components: {
 		EmptyContent,
 		TiledLayout,
-		TiledRows,
 		VirtualScrolling,
 		Loader,
 	},
@@ -213,6 +218,17 @@ export default {
 			width: 200px;
 			height: 200px;
 		}
+	}
+
+	.tiled-row {
+		display: flex;
+	}
+
+	&__section-header {
+		position: sticky;
+		top: 0;
+		z-index: 3;
+		background: var(--color-main-background);
 	}
 
 	&__loader {
