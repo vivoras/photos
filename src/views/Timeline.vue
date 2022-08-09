@@ -336,10 +336,10 @@ export default {
 		display: flex;
 		min-height: 60px;
 		align-items: center;
-		position: fixed;
+		position: sticky;
+		top: var(--header-height);
 		width: 100%;
 		height: 60px;
-		position: fixed;
 		z-index: 3;
 		background: var(--color-main-background);
 

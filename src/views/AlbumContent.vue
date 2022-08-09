@@ -438,7 +438,8 @@ export default {
 		min-height: 60px;
 		align-items: center;
 		justify-content: space-between;
-		position: fixed;
+		position: sticky;
+		top: var(--header-height);
 		z-index: 3;
 		background: var(--color-main-background);
 
