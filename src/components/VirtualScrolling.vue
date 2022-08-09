@@ -73,11 +73,11 @@ export default {
 
 		renderWindowRatio: {
 			type: Number,
-			default: 6,
+			default: 4,
 		},
 		willBeVisibleWindowRatio: {
 			type: Number,
-			default: 5,
+			default: 4,
 		},
 		visibleWindowRatio: {
 			type: Number,
