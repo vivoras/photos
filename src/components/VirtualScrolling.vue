@@ -159,14 +159,16 @@ export default {
 		},
 
 		/**
-		 * Total height of all the rows.
+		 * Total height of all the rows + some room for the loader.
 		 *
 		 * @return {number}
 		 */
 		rowsHeight() {
+			const loaderHeight = 200
+
 			return this.rows
 				.map(row => row.height)
-				.reduce((totalHeight, rowHeight) => totalHeight + rowHeight, 0)
+				.reduce((totalHeight, rowHeight) => totalHeight + rowHeight, 0) + loaderHeight
 		},
 
 		/**
