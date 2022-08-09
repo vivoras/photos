@@ -49,6 +49,9 @@ const mutations = {
 				file.fileMetadataSizeParsed.height = file.fileMetadataSizeParsed?.height ?? 256
 			}
 
+			// Make the fileId a string once and for all.
+			file.fileid = file.fileid.toString()
+
 			// Precalculate dates as it is expensive.
 			file.timestamp = moment(file.lastmod).unix() // For sorting
 			file.month = moment(file.lastmod).format('YYYYMM') // For grouping by month

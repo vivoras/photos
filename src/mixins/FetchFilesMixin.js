@@ -98,7 +98,11 @@ export default {
 				}
 
 				const fileIds = fetchedFiles.map(file => file.fileid).filter(fileId => !this.fetchedFileIds.includes(fileId)) // Filter to prevent duplicate fileIds.
-				this.fetchedFileIds.push(...fileIds.filter((fileId) => !blacklist.includes(fileId)))
+				this.fetchedFileIds.push(
+					...fileIds
+						.map((fileId) => fileId.toString())
+						.filter((fileId) => !blacklist.includes(fileId))
+				)
 
 				this.$store.dispatch('appendFiles', fetchedFiles)
 
