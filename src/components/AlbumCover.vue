@@ -22,7 +22,10 @@
 
 <template>
 	<router-link class="album-cover" :to="`/albums/${baseName}`">
-		<img class="album-cover__image" :src="coverUrl">
+		<img v-if="album.cover !== undefined" class="album-cover__image" :src="coverUrl">
+		<div v-if="album.cover === undefined" class="album-cover__image album-cover__image--placeholder" :src="coverUrl">
+			<ImageMultiple :size="64" />
+		</div>
 		<div class="album-cover__details">
 			<div class="album-cover__details__first-line">
 				<h2 class="album-cover__details__name">
@@ -45,6 +48,7 @@
 import { mapGetters } from 'vuex'
 import ShareVariant from 'vue-material-design-icons/ShareVariant'
 import AccountMultiple from 'vue-material-design-icons/AccountMultiple'
+import ImageMultiple from 'vue-material-design-icons/ImageMultiple'
 
 import moment from '@nextcloud/moment'
 import { generateUrl } from '@nextcloud/router'
@@ -55,6 +59,7 @@ export default {
 	components: {
 		ShareVariant,
 		AccountMultiple,
+		ImageMultiple,
 	},
 
 	props: {
@@ -81,7 +86,7 @@ export default {
 		 * @return {string}
 		 */
 		coverUrl() {
-			return generateUrl(`/core/preview?fileId=${this.album.cover || 47515}&x=${512}&y=${512}&forceIcon=0&a=1`)
+			return generateUrl(`/core/preview?fileId=${this.album.cover}&x=${512}&y=${512}&forceIcon=0&a=1`)
 		},
 
 		/**
@@ -98,6 +103,12 @@ export default {
 .album-cover {
 	display: flex;
 	flex-direction: column;
+	padding: 16px;
+	border-radius: 12px;
+
+	&:hover {
+		background: var(--color-background-dark);
+	}
 
 	&__image {
 		width: 350px;
@@ -108,6 +119,19 @@ export default {
 		@media only screen and (max-width: 1200px) {
 			width: 250px;
 			height: 250px;
+		}
+
+		&--placeholder {
+			background: var(--color-main-background);
+
+			::v-deep .material-design-icon {
+				width: 100%;
+				height: 100%;
+
+				.material-design-icon__svg {
+					fill: var(--color-text-maxcontrast);
+				}
+			}
 		}
 	}
 

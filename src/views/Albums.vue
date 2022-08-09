@@ -28,7 +28,9 @@
 	<!-- Album list -->
 	<div v-else class="albums">
 		<div class="albums__header">
-			<Button :aria-label="t('photo', 'Create a new album.')" @click="showAlbumCreationForm = true">
+			<Button type="primary"
+				:aria-label="t('photo', 'Create a new album.')"
+				@click="showAlbumCreationForm = true">
 				<template #icon>
 					<Plus />
 				</template>
@@ -149,7 +151,8 @@ export default {
 		display: flex;
 		flex-wrap: wrap;
 		overflow: scroll;
-		gap: 32px;
+		gap: 16px;
+		align-items: flex-start;
 	}
 
 	&__empty {
