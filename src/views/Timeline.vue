@@ -303,9 +303,9 @@ export default {
 			try {
 				this.loadingCount++
 				// Need to store the file ids so it is not changed before the deleteFiles call.
-				const files = this.selectedFileIds
-				this.$emit('uncheck-items', files)
-				await this.deleteFiles(files)
+				const fileIds = this.selectedFileIds
+				this.$emit('uncheck-items', fileIds)
+				await this.deleteFiles(fileIds)
 			} catch (error) {
 				logger.error(error)
 			} finally {

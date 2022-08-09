@@ -20,8 +20,6 @@
  *
  */
 
-import { mapGetters } from 'vuex'
-
 import logger from '../services/logger.js'
 import getPhotos from '../services/PhotoSearch.js'
 import cancelableRequest from '../utils/CancelableRequest.js'
@@ -53,15 +51,13 @@ export default {
 		if (this.cancelFilesRequest) {
 			this.cancelFilesRequest('Changed view')
 		}
-
-		this.resetFetchFilesState()
 		return next()
 	},
 
-	computed: {
-		...mapGetters([
-			'files',
-		]),
+	watch: {
+		$route() {
+			this.resetFetchFilesState()
+		},
 	},
 
 	methods: {

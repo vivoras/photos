@@ -632,13 +632,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
 /* harmony import */ var _services_logger_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../services/logger.js */ "./src/services/logger.js");
 /* harmony import */ var _services_PhotoSearch_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../services/PhotoSearch.js */ "./src/services/PhotoSearch.js");
 /* harmony import */ var _utils_CancelableRequest_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/CancelableRequest.js */ "./src/utils/CancelableRequest.js");
 /* harmony import */ var _utils_semaphoreWithPriority_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../utils/semaphoreWithPriority.js */ "./src/utils/semaphoreWithPriority.js");
 /**
- * @copyright Copyright (c) 2019 Louis Chemineau <louis@chmn.me>
+ * @copyright Copyright (c) 2022 Louis Chemineau <louis@chmn.me>
  *
  * @author Louis Chemineau <louis@chmn.me>
  *
@@ -658,7 +657,6 @@ __webpack_require__.r(__webpack_exports__);
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 
 
 
@@ -690,11 +688,14 @@ __webpack_require__.r(__webpack_exports__);
       this.cancelFilesRequest('Changed view');
     }
 
-    this.resetFetchFilesState();
     return next();
   },
 
-  computed: { ...(0,vuex__WEBPACK_IMPORTED_MODULE_4__.mapGetters)(['files'])
+  watch: {
+    $route() {
+      this.resetFetchFilesState();
+    }
+
   },
   methods: {
     /**
@@ -790,7 +791,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
 /**
- * @copyright Copyright (c) 2019 Louis Chemineau <louis@chmn.me>
+ * @copyright Copyright (c) 2022 Louis Chemineau <louis@chmn.me>
  *
  * @author Louis Chemineau <louis@chmn.me>
  *
@@ -2129,4 +2130,4 @@ render._withStripped = true
 /***/ })
 
 }]);
-//# sourceMappingURL=photos-src_mixins_FetchFilesMixin_js-src_mixins_FilesByMonthMixin_js-src_mixins_FilesSelectionMixin_-258105.js.map?v=ce44e9879f1fadc0615a
+//# sourceMappingURL=photos-src_mixins_FetchFilesMixin_js-src_mixins_FilesByMonthMixin_js-src_mixins_FilesSelectionMixin_-258105.js.map?v=95cfe46cb284731db2d5

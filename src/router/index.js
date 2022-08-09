@@ -106,7 +106,7 @@ export default new Router({
 		},
 		{
 			path: '/shared/:path*',
-			component: Albums,
+			component: Folders,
 			name: 'shared',
 			props: route => ({
 				path: parsePathParams(route.params.path),

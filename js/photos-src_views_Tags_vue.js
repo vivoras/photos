@@ -220,10 +220,6 @@ __webpack_require__.r(__webpack_exports__);
       type: String,
       default: ''
     },
-    loading: {
-      type: Boolean,
-      required: true
-    },
     isRoot: {
       type: Boolean,
       default: true
@@ -233,7 +229,8 @@ __webpack_require__.r(__webpack_exports__);
   data() {
     return {
       error: null,
-      cancelRequest: null
+      cancelRequest: null,
+      loading: false
     };
   },
 
@@ -344,7 +341,7 @@ __webpack_require__.r(__webpack_exports__);
       OCA.Viewer.close(); // if we don't already have some cached data let's show a loader
 
       if (!this.tags[this.tagId]) {
-        this.$emit('update:loading', true);
+        this.loading = true;
       }
 
       this.error = null; // init cancellable request
@@ -364,7 +361,7 @@ __webpack_require__.r(__webpack_exports__);
         this.error = true;
       } finally {
         // done loading
-        this.$emit('update:loading', false);
+        this.loading = false;
         this.cancelRequest = null;
       }
     },
@@ -379,7 +376,7 @@ __webpack_require__.r(__webpack_exports__);
       OCA.Viewer.close(); // if we don't already have some cached data let's show a loader
 
       if (!this.tags[this.tagId]) {
-        this.$emit('update:loading', true);
+        this.loading = true;
       }
 
       this.error = null; // init cancellable request
@@ -403,7 +400,7 @@ __webpack_require__.r(__webpack_exports__);
         this.error = true;
       } finally {
         // done loading
-        this.$emit('update:loading', false);
+        this.loading = false;
         this.cancelRequest = null;
       }
     }
@@ -924,4 +921,4 @@ render._withStripped = true
 /***/ })
 
 }]);
-//# sourceMappingURL=photos-src_views_Tags_vue.js.map?v=226a60b17b296d77b0c3
+//# sourceMappingURL=photos-src_views_Tags_vue.js.map?v=fe28cda4c970a2d349a8

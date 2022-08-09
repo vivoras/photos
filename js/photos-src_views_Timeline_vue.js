@@ -597,9 +597,9 @@ __webpack_require__.r(__webpack_exports__);
       try {
         this.loadingCount++; // Need to store the file ids so it is not changed before the deleteFiles call.
 
-        const files = this.selectedFileIds;
-        this.$emit('uncheck-items', files);
-        await this.deleteFiles(files);
+        const fileIds = this.selectedFileIds;
+        this.$emit('uncheck-items', fileIds);
+        await this.deleteFiles(fileIds);
       } catch (error) {
         _services_logger_js__WEBPACK_IMPORTED_MODULE_8__["default"].error(error);
       } finally {
@@ -697,7 +697,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, ".timeline[data-v-e945440a] {\n  display: flex;\n  flex-direction: column;\n  padding: 4px 64px;\n}\n.timeline__header[data-v-e945440a] {\n  display: flex;\n  min-height: 60px;\n  align-items: center;\n  position: fixed;\n  width: 100%;\n  height: 60px;\n}\n.timeline__header > *[data-v-e945440a] {\n  margin-right: 8px;\n}\n.timeline__header .loader[data-v-e945440a] {\n  margin-left: 16px;\n}\n.timeline__file-list[data-v-e945440a] {\n  margin-top: 60px;\n}\n.timeline__file-list .section-header[data-v-e945440a] {\n  padding: 24px 0 16px 0;\n}", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, ".timeline[data-v-e945440a] {\n  display: flex;\n  flex-direction: column;\n  padding: 0 64px;\n}\n.timeline__header[data-v-e945440a] {\n  display: flex;\n  min-height: 60px;\n  align-items: center;\n  position: fixed;\n  width: 100%;\n  height: 60px;\n  position: fixed;\n  z-index: 3;\n  background: var(--color-main-background);\n}\n.timeline__header > *[data-v-e945440a] {\n  margin-right: 8px;\n}\n.timeline__header .loader[data-v-e945440a] {\n  margin-left: 16px;\n}\n.timeline__file-list[data-v-e945440a] {\n  margin-top: 60px;\n}\n.timeline__file-list .section-header[data-v-e945440a] {\n  padding: 24px 0 16px 0;\n}", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -1708,4 +1708,4 @@ module.exports = webpackAsyncContext;
 /***/ })
 
 }]);
-//# sourceMappingURL=photos-src_views_Timeline_vue.js.map?v=cdc15a9c7e0767c8cf43
+//# sourceMappingURL=photos-src_views_Timeline_vue.js.map?v=cfc24cdad2732f7568ae

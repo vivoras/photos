@@ -366,7 +366,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _services_logger_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../services/logger.js */ "./src/services/logger.js");
 /* harmony import */ var _utils_CancelableRequest_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/CancelableRequest.js */ "./src/utils/CancelableRequest.js");
 /**
- * @copyright Copyright (c) 2019 Louis Chemineau <louis@chmn.me>
+ * @copyright Copyright (c) 2022 Louis Chemineau <louis@chmn.me>
  *
  * @author Louis Chemineau <louis@chmn.me>
  *
@@ -1435,4 +1435,4 @@ render._withStripped = true
 /***/ })
 
 }]);
-//# sourceMappingURL=photos-src_mixins_FetchAlbumsMixin_js-src_components_AlbumForm_vue.js.map?v=7fbacd526e5802913bbf
+//# sourceMappingURL=photos-src_mixins_FetchAlbumsMixin_js-src_components_AlbumForm_vue.js.map?v=479f857a1de9563e620e

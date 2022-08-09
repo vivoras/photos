@@ -30,7 +30,7 @@
 
 			<!-- image and loading placeholder -->
 			<div class="file__images">
-				<VideoIcon v-if="item.mime.includes('video')" class="video-icon" size="64" />
+				<VideoIcon v-if="item.mime.includes('video')" class="video-icon" :size="64" />
 
 				<img v-if="visibility !== 'none' && canLoad && !error"
 					ref="imgNear"
