@@ -191,15 +191,19 @@ export default {
 	},
 }
 </script>
-<style lang="scss" scoped>
-.app-content {
-	display: flex;
-	flex-grow: 1;
-	flex-direction: column;
-	align-content: space-between;
-}
+<style lang="scss">
+.app-photos {
+	width: 100vw; // Prevent layout change when opening the Viewer as the scrollbar disappear (overflow: hidden on body)
 
-.app-navigation__photos::v-deep .app-navigation-entry-icon.icon-photos {
-	background-size: 20px;
+	.app-content {
+		display: flex;
+		flex-grow: 1;
+		flex-direction: column;
+		align-content: space-between;
+	}
+
+	.app-navigation__photos::v-deep .app-navigation-entry-icon.icon-photos {
+		background-size: 20px;
+	}
 }
 </style>
