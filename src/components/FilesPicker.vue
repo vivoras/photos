@@ -75,6 +75,8 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+
 import ImagePlus from 'vue-material-design-icons/ImagePlus'
 import Upload from 'vue-material-design-icons/Upload'
 import moment from '@nextcloud/moment'
@@ -116,7 +118,7 @@ export default {
 	props: {
 		blacklistIds: {
 			type: Array,
-			default: [],
+			default: () => [],
 		},
 	},
 
@@ -124,6 +126,12 @@ export default {
 		return {
 			targetMonth: null,
 		}
+	},
+
+	computed: {
+		...mapGetters([
+			'files',
+		]),
 	},
 
 	watch: {

@@ -41,7 +41,7 @@ export default {
 		 * @param {string[]} filesIds - The ids of the files to uncheck.
 		 */
 		onUncheckFiles(filesIds) {
-			filesIds.forEach((/** @type {string} */ filesId) => this.$set(this.selectedFiles, filesId, false))
+			filesIds.forEach((/** @type {string} */ filesId) => this.$set(this.selection, filesId, false))
 		},
 	},
 
