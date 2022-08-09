@@ -122,11 +122,11 @@ class AlbumMapper {
 			if ($row['fileid']) {
 				$mimeId = $row['mimetype'];
 				$mimeType = $this->mimeTypeLoader->getMimetypeById($mimeId);
-				$filesByAlbum[$albumId][] = new AlbumFile($row['fileid'], $row['file_name'], $mimeType, $row['size'], $row['mtime'], $row['etag']);
+				$filesByAlbum[$albumId][] = new AlbumFile((int)$row['fileid'], $row['file_name'], $mimeType, (int)$row['size'], (int)$row['mtime'], $row['etag']);
 			}
 
 			if (!isset($albumsById[$albumId])) {
-				$albumsById[$albumId] = new AlbumInfo($albumId, $userId, $row['album_name']);
+				$albumsById[$albumId] = new AlbumInfo((int)$albumId, $userId, $row['album_name']);
 			}
 		}
 
