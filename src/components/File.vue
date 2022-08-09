@@ -30,39 +30,39 @@
 
 			<!-- image and loading placeholder -->
 			<div class="file__images">
-				<VideoIcon v-if="item.mime.includes('video')" class="video-icon" :size="64" />
+				<VideoIcon v-if="file.mime.includes('video')" class="video-icon" :size="64" />
 
 				<img v-if="visibility !== 'none' && canLoad && !error"
 					ref="imgNear"
-					:key="`${item.basename}-near`"
+					:key="`${file.basename}-near`"
 					:src="srcNear"
-					:alt="item.basename"
+					:alt="file.basename"
 					:aria-describedby="ariaDescription"
 					@load="onLoad"
 					@error="onError">
 
 				<img v-if="visibility === 'visible' && canLoad && !error"
 					ref="imgVisible"
-					:key="`${item.basename}-visible`"
+					:key="`${file.basename}-visible`"
 					:src="srcVisible"
-					:alt="item.basename"
+					:alt="file.basename"
 					:aria-describedby="ariaDescription"
 					@load="onLoad"
 					@error="onError">
 			</div>
 
 			<!-- image description -->
-			<p :id="ariaDescription" class="file__hidden-description" :class="{show: error}">{{ item.basename }}</p>
+			<p :id="ariaDescription" class="file__hidden-description" :class="{show: error}">{{ file.basename }}</p>
 		</a>
 
 		<CheckboxRadioSwitch v-if="allowSelection"
 			class="selection-checkbox"
 			:checked="selected"
 			@update:checked="onToggle">
-			<span class="input-label">{{ t('photos', 'Select image {imageName}', {imageName: item.basename}) }}</span>
+			<span class="input-label">{{ t('photos', 'Select image {imageName}', {imageName: file.basename}) }}</span>
 		</CheckboxRadioSwitch>
 
-		<Star v-if="item.favorite === 1" class="favorite-state" />
+		<Star v-if="file.favorite === 1" class="favorite-state" />
 	</div>
 </template>
 
@@ -87,8 +87,7 @@ export default {
 	mixins: [UserConfig],
 	inheritAttrs: false,
 	props: {
-		// TODO: rename item to file
-		item: {
+		file: {
 			type: Object,
 			required: true,
 		},
@@ -123,23 +122,23 @@ export default {
 	computed: {
 		/** @return {string} */
 		davPath() {
-			return generateRemoteUrl(`dav/files/${getCurrentUser().uid}`) + this.item.filename
+			return generateRemoteUrl(`dav/files/${getCurrentUser().uid}`) + this.file.filename
 		},
 		/** @return {string} */
 		ariaDescription() {
-			return `image-description-${this.item.fileid}`
+			return `image-description-${this.file.fileid}`
 		},
 		/** @return {string} */
 		ariaLabel() {
-			return t('photos', 'Open the full size "{name}" image', { name: this.item.basename })
+			return t('photos', 'Open the full size "{name}" image', { name: this.file.basename })
 		},
 		/** @return {boolean} */
 		isImage() {
-			return this.item.mime.startsWith('image')
+			return this.file.mime.startsWith('image')
 		},
 		/** @return {string} */
 		decodedEtag() {
-			return this.item.etag.replace('&quot;', '').replace('&quot;', '')
+			return this.file.etag.replace('&quot;', '').replace('&quot;', '')
 		},
 		/** @return {string} */
 		srcVisible() {
@@ -151,27 +150,25 @@ export default {
 		},
 	},
 
-	async mounted() {
+	mounted() {
 		// Don't render the component right away as it is useless if the user is only scrolling
-		await new Promise((resolve) => {
-			setTimeout(async () => { resolve() }, 250)
-		})
+		setTimeout(async () => {
+			this.semaphoreSymbol = await this.semaphore.acquire(() => {
+				switch (this.visibility) {
+				case 'visible':
+					return 1
+				case 'near':
+					return 2
+				default:
+					return 3
+				}
+			}, this.file.fileid)
 
-		this.semaphoreSymbol = await this.semaphore.acquire(() => {
-			switch (this.visibility) {
-			case 'visible':
-				return 1
-			case 'near':
-				return 2
-			default:
-				return 3
+			this.canLoad = true
+			if (this.visibility === 'none' || this.isDestroyed) {
+				this.releaseSemaphore()
 			}
-		}, this.item.fileid)
-
-		this.canLoad = true
-		if (this.visibility === 'none' || this.isDestroyed) {
-			this.releaseSemaphore()
-		}
+		}, 250)
 	},
 
 	beforeDestroy() {
@@ -189,7 +186,7 @@ export default {
 
 	methods: {
 		emitClick() {
-			this.$emit('click', this.item.fileid)
+			this.$emit('click', this.file.fileid)
 		},
 
 		/** When the image is fully loaded by browser we remove the placeholder */
@@ -204,11 +201,11 @@ export default {
 		},
 
 		onToggle(value) {
-			this.$emit('select-toggled', { id: this.item.fileid, value })
+			this.$emit('select-toggled', { id: this.file.fileid, value })
 		},
 
 		getItemURL(size) {
-			return generateUrl(`/core/preview?fileId=${this.item.fileid}&c=${this.decodedEtag}&x=${size}&y=${size}&forceIcon=0&a=1`)
+			return generateUrl(`/core/preview?fileId=${this.file.fileid}&c=${this.decodedEtag}&x=${size}&y=${size}&forceIcon=0&a=1`)
 
 		},
 

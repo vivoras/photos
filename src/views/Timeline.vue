@@ -108,7 +108,7 @@
 					{{ file.id | dateYear }}
 				</h3>
 				<File v-else
-					:item="files[file.id]"
+					:file="files[file.id]"
 					:allow-selection="true"
 					:selected="selection[file.id] === true"
 					:visibility="visibility"
