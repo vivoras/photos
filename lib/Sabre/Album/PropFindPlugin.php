@@ -36,6 +36,7 @@ class PropFindPlugin extends ServerPlugin {
 	public const FILE_METADATA_SIZE = '{http://nextcloud.org/ns}file-metadata-size';
 	public const HAS_PREVIEW_PROPERTYNAME = '{http://nextcloud.org/ns}has-preview';
 	public const FAVORITE_PROPERTYNAME = '{http://owncloud.org/ns}favorite';
+	public const DATE_RANGE_PROPERTYNAME = '{http://nextcloud.org/ns}dateRange';
 	public const COVER_PROPERTYNAME = '{http://nextcloud.org/ns}cover';
 	public const NBITEMS_PROPERTYNAME = '{http://nextcloud.org/ns}nbItems';
 	public const LOCATION_PROPERTYNAME = '{http://nextcloud.org/ns}location';
@@ -106,6 +107,10 @@ class PropFindPlugin extends ServerPlugin {
 
 			$propFind->handle(self::LOCATION_PROPERTYNAME, function () use ($node) {
 				return '';
+			});
+
+			$propFind->handle(self::DATE_RANGE_PROPERTYNAME, function () use ($node) {
+				return json_encode($node->getDateRange());
 			});
 		}
 	}

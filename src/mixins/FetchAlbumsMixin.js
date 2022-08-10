@@ -22,6 +22,7 @@
 
 import { mapGetters } from 'vuex'
 
+import moment from '@nextcloud/moment'
 import { showError } from '@nextcloud/dialogs'
 import { getCurrentUser } from '@nextcloud/auth'
 
@@ -78,18 +79,43 @@ export default {
 									<nc:cover />
 									<nc:nbItems />
 									<nc:location />
+									<nc:dateRange />
 								</d:prop>
 							</d:propfind>`,
 					details: true,
 
 				})
-				const albums = response.data.map(file => genFileInfo(file)).filter(album => album.filename !== '/photos/admin/albums')
+				const albums = response.data
+					.filter(album => album.filename !== '/photos/admin/albums')
+					.map(album => genFileInfo(album))
+					.map(album => {
+						const dateRange = JSON.parse(album.dateRange?.replace(/&quot;/g, '"') ?? '{}')
+
+						if (dateRange.start === null) {
+							dateRange.start = moment().unix()
+							dateRange.end = moment().unix()
+						}
+
+						const dateRangeFormated = {
+							startDate: moment.unix(dateRange.start).format('MMMM YYYY'),
+							endDate: moment.unix(dateRange.end).format('MMMM YYYY'),
+						}
+
+						if (dateRangeFormated.startDate === dateRangeFormated.endDate) {
+							return { ...album, date: this.t('photos', '{startDate}', dateRangeFormated) }
+						} else {
+							return { ...album, date: this.t('photos', '{startDate} to {endDate}', dateRangeFormated) }
+						}
+					})
+
 				this.$store.dispatch('addAlbums', { albums })
 				logger.debug(`[FetchAlbumsMixin] Fetched ${albums.length} new files: `, albums)
 			} catch (error) {
 				if (error.response && error.response.status) {
 					if (error.response.status === 404) {
 						this.errorFetchingAlbums = 404
+					} else if (error.code === 'ERR_CANCELED') {
+						return
 					} else {
 						this.errorFetchingAlbums = error
 					}

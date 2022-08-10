@@ -178,9 +178,9 @@ export default {
 					album: {
 						basename: this.albumName,
 						nbItems: 0,
-						lastmod: moment().unix(),
 						location: this.albumLocation,
 						cover: '',
+						date: moment().format('MMMM YYYY'),
 						collaborators,
 					},
 				})

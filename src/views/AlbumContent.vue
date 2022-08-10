@@ -333,6 +333,8 @@ export default {
 				if (error.response && error.response.status) {
 					if (error.response.status === 404) {
 						this.errorFetchingFiles = 404
+					} else if (error.code === 'ERR_CANCELED') {
+						return
 					} else {
 						this.errorFetchingFiles = error
 					}

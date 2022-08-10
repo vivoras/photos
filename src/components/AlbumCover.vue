@@ -37,7 +37,7 @@
 				</div> -->
 			</div>
 			<div class="album-cover__details__second-line">
-				{{ prettyCreationDate }} ⸱ {{ n('photos', '%n item', '%n items', album.nbItems,) }}
+				{{ album.date }} ⸱ {{ n('photos', '%n item', '%n items', album.nbItems,) }}
 			</div>
 		</div>
 	</router-link>
@@ -50,7 +50,6 @@ import { mapGetters } from 'vuex'
 // import AccountMultiple from 'vue-material-design-icons/AccountMultiple'
 import ImageMultiple from 'vue-material-design-icons/ImageMultiple'
 
-import moment from '@nextcloud/moment'
 import { generateUrl } from '@nextcloud/router'
 
 export default {
@@ -87,13 +86,6 @@ export default {
 		 */
 		coverUrl() {
 			return generateUrl(`/core/preview?fileId=${this.album.cover}&x=${512}&y=${512}&forceIcon=0&a=1`)
-		},
-
-		/**
-		 * @param {string}
-		 */
-		prettyCreationDate() {
-			return moment.unix(this.album.lastmod).format('MMMM YYYY')
 		},
 	},
 }

@@ -114,4 +114,22 @@ class AlbumRoot implements ICollection, ICopyTarget {
 		}
 		throw new \Exception("Can't add file to album, only files from $uid can be added");
 	}
+
+	public function getDateRange() {
+		$earliestDate = null;
+		$latestDate = null;
+
+		foreach ($this->getChildren() as $child) {
+			$childCreationDate = $child->getFileInfo()->getMtime();
+			if ($childCreationDate < $earliestDate || $earliestDate === null) {
+				$earliestDate = $childCreationDate;
+			}
+
+			if ($childCreationDate > $earliestDate || $latestDate === null) {
+				$latestDate = $childCreationDate;
+			}
+		}
+
+		return ['start' => $earliestDate, 'end' => $latestDate];
+	}
 }
