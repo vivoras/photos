@@ -20,21 +20,21 @@
  -
  -->
 <template>
-	<form v-if="!showCollaboratorView" class="album-form">
+	<form v-if="!showCollaboratorView" class="album-form" @submit.prevent="submit">
 		<div class="form-inputs">
 			<input ref="nameInput"
-				v-model="albumName"
+				v-model.trim="albumName"
 				type="text"
 				name="name"
 				required
 				autofocus="true"
 				:placeholder="t('photos', 'Name of the album')">
-			<label v-if="!editMode">
-				<MapMarker /><input v-model="albumLocation"
+			<!-- <label v-if="!editMode">
+				<MapMarker /><input v-model.trim="albumLocation"
 					name="location"
 					type="text"
 					:placeholder="t('photos', 'Location of the album')">
-			</label>
+			</label> -->
 		</div>
 		<div class="form-buttons">
 			<span class="left-buttons">
@@ -46,8 +46,7 @@
 				</Button>
 			</span>
 			<span class="right-buttons">
-
-				<Button v-if="!editMode"
+				<!-- <Button v-if="!editMode"
 					:aria-label="t('photo', 'Go to the add collaborators view.')"
 					type="secondary"
 					:disabled="albumName.trim() === '' || loading"
@@ -56,10 +55,10 @@
 						<AccountMultiplePlus />
 					</template>
 					{{ t('photo', 'Add collaborators') }}
-				</Button>
+				</Button> -->
 				<Button :aria-label="editMode ? t('photo', 'Save.') : t('photo', 'Create the album.')"
 					type="primary"
-					:disabled="albumName.trim() === '' || loading"
+					:disabled="albumName === '' || loading"
 					@click="submit()">
 					<template #icon>
 						<Loader v-if="loading" />
@@ -99,7 +98,7 @@
 <script>
 import { mapActions } from 'vuex'
 import MapMarker from 'vue-material-design-icons/MapMarker'
-import AccountMultiplePlus from 'vue-material-design-icons/AccountMultiplePlus'
+// import AccountMultiplePlus from 'vue-material-design-icons/AccountMultiplePlus'
 import Send from 'vue-material-design-icons/Send'
 
 import { Button } from '@nextcloud/vue'
@@ -114,7 +113,7 @@ export default {
 	components: {
 		Button,
 		MapMarker,
-		AccountMultiplePlus,
+		// AccountMultiplePlus,
 		Send,
 		Loader,
 		CollaboratorsSelectionForm,
@@ -161,6 +160,10 @@ export default {
 		...mapActions(['createAlbum', 'renameAlbum']),
 
 		submit(collaborators = []) {
+			if (this.albumName === '' || this.loading) {
+				return
+			}
+
 			if (this.editMode) {
 				this.handleUpdateAlbum(collaborators)
 			} else {
@@ -174,9 +177,10 @@ export default {
 				const album = await this.createAlbum({
 					album: {
 						basename: this.albumName,
-						size: 0,
+						nbItems: 0,
 						lastmod: moment().unix(),
 						location: this.albumLocation,
+						cover: '',
 						collaborators,
 					},
 				})

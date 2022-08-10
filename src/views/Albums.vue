@@ -72,7 +72,7 @@
 		<Modal v-if="showAlbumCreationForm"
 			:title="t('photos', 'New album')"
 			@close="showAlbumCreationForm = false">
-			<AlbumForm @done="showAlbumCreationForm = false" />
+			<AlbumForm @done="handleAlbumCreated" />
 		</Modal>
 	</div>
 </template>
@@ -117,6 +117,13 @@ export default {
 		 */
 		noAlbums() {
 			return Object.keys(this.albums).length === 0
+		},
+	},
+
+	methods: {
+		handleAlbumCreated({ album }) {
+			this.showAlbumCreationForm = false
+			this.$router.push(`/albums/${album.basename}`)
 		},
 	},
 }

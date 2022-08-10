@@ -82,7 +82,7 @@ const mutations = {
 				...fileIdsToAdd.filter(fileId => !albumFiles.includes(fileId)), // Filter to prevent duplicate fileId.
 			],
 		}
-		state.albums[albumName].size += fileIdsToAdd.length
+		state.albums[albumName].nbItems += fileIdsToAdd.length
 	},
 
 	/**
@@ -98,7 +98,7 @@ const mutations = {
 			...state.albumsFiles,
 			[albumName]: state.albumsFiles[albumName].filter(fileId => !fileIdsToRemove.includes(fileId)),
 		}
-		state.albums[albumName].size -= fileIdsToRemove.length
+		state.albums[albumName].nbItems -= fileIdsToRemove.length
 	},
 }
 
@@ -200,6 +200,7 @@ const actions = {
 		try {
 			await client.createDirectory(`/photos/${getCurrentUser()?.uid}/albums/${album.basename}`)
 			context.commit('addAlbums', { albums: [album] })
+			return album
 		} catch (error) {
 			logger.error(t('photos', 'Failed to create {albumName}.', { albumName: album.basename }), error)
 			showError(t('photos', 'Failed to create {albumName}.', { albumName: album.basename }))
@@ -215,20 +216,24 @@ const actions = {
 	 * @param {string} data.newAlbumName - The wanted name for the album.
 	 */
 	async renameAlbum(context, { currentAlbumName, newAlbumName }) {
-		let album = state.albums[currentAlbumName]
-
+		const album = state.albums[currentAlbumName]
+		const newAlbum = { ...album, basename: newAlbumName }
 		try {
-			context.commit('removeAlbums', { albumNames: [currentAlbumName] })
+			context.commit('addAlbums', { albums: [newAlbum] })
 
-			album = await client.moveFile(
+			await client.moveFile(
 				`/photos/${getCurrentUser()?.uid}/albums/${currentAlbumName}`,
 				`/photos/${getCurrentUser()?.uid}/albums/${newAlbumName}`,
 			)
+
+			context.commit('removeAlbums', { albumNames: [currentAlbumName] })
+			return newAlbum
 		} catch (error) {
+			context.commit('removeAlbums', { albumNames: [newAlbumName] })
+
 			logger.error(t('photos', 'Failed to rename {currentAlbumName} to {newAlbumName}.', { currentAlbumName, newAlbumName }), error)
 			showError(t('photos', 'Failed to rename {currentAlbumName} to {newAlbumName}.', { currentAlbumName, newAlbumName }))
-		} finally {
-			context.commit('addAlbums', { albums: [album] })
+			return album
 		}
 	},
 

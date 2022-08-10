@@ -22,8 +22,8 @@
 
 <template>
 	<router-link class="album-cover" :to="`/albums/${baseName}`">
-		<img v-if="album.cover !== undefined" class="album-cover__image" :src="coverUrl">
-		<div v-if="album.cover === undefined" class="album-cover__image album-cover__image--placeholder" :src="coverUrl">
+		<img v-if="album.cover !== ''" class="album-cover__image" :src="coverUrl">
+		<div v-if="album.cover === ''" class="album-cover__image album-cover__image--placeholder">
 			<ImageMultiple :size="64" />
 		</div>
 		<div class="album-cover__details">
@@ -31,13 +31,13 @@
 				<h2 class="album-cover__details__name">
 					{{ baseName }}
 				</h2>
-				<div class="album-cover__details__state">
+				<!-- <div class="album-cover__details__state">
 					<ShareVariant v-if="album.isShared" />
 					<AccountMultiple v-if="album.isCollaborative" />
-				</div>
+				</div> -->
 			</div>
 			<div class="album-cover__details__second-line">
-				{{ prettyCreationDate }} ⸱ {{ n('photos', '%n item', '%n items', album.size,) }}
+				{{ prettyCreationDate }} ⸱ {{ n('photos', '%n item', '%n items', album.nbItems,) }}
 			</div>
 		</div>
 	</router-link>
@@ -46,8 +46,8 @@
 <script>
 
 import { mapGetters } from 'vuex'
-import ShareVariant from 'vue-material-design-icons/ShareVariant'
-import AccountMultiple from 'vue-material-design-icons/AccountMultiple'
+// import ShareVariant from 'vue-material-design-icons/ShareVariant'
+// import AccountMultiple from 'vue-material-design-icons/AccountMultiple'
 import ImageMultiple from 'vue-material-design-icons/ImageMultiple'
 
 import moment from '@nextcloud/moment'
@@ -57,8 +57,8 @@ export default {
 	name: 'AlbumCover',
 
 	components: {
-		ShareVariant,
-		AccountMultiple,
+		// ShareVariant,
+		// AccountMultiple,
 		ImageMultiple,
 	},
 

@@ -43,15 +43,15 @@
 						{{ album.basename }}
 
 					</b>
-					<div v-if="album !== undefined && album.location !== undefined" class="album-location">
+					<!-- <div v-if="album !== undefined && album.location !== ''" class="album-location">
 						<MapMarker />{{ album.location }}
-					</div>
+					</div> -->
 				</div>
 
 				<Loader v-if="loadingCount > 0" />
 			</div>
 			<div v-if="album !== undefined" class="album__header__actions">
-				<Button v-if="album.size !== 0"
+				<Button v-if="album.nbItems !== 0"
 					type="tertiary"
 					:aria-label="t('photos', 'Add photos to this album')"
 					@click="showAddPhotosModal = true">
@@ -59,11 +59,11 @@
 						<Plus />
 					</template>
 				</Button>
-				<Button type="tertiary" :aria-label="t('photos', 'Share this album')" @click="showShareModal = true">
+				<!-- <Button type="tertiary" :aria-label="t('photos', 'Share this album')" @click="showShareModal = true">
 					<template #icon>
 						<ShareVariant />
 					</template>
-				</Button>
+				</Button> -->
 				<Actions :force-menu="true">
 					<ActionButton :close-after-click="true"
 						:title="t('photos', 'Edit details')"
@@ -72,14 +72,15 @@
 							<Pencil />
 						</template>
 					</ActionButton>
-					<template v-if="selection.length === 0">
+					<template v-if="selectedFileIds.length > 0">
 						<ActionButton :close-after-click="true"
 							:aria-label="t('photos', 'Download selection')"
 							:title="t('photos', 'Download')"
 							@click="downloadSelection">
 							<DownloadOutline slot="icon" />
 						</ActionButton>
-						<ActionButton v-if="shouldFavoriteSelection"
+						<!-- TODO: fix favorite -->
+						<!-- <ActionButton v-if="shouldFavoriteSelection"
 							:close-after-click="true"
 							:aria-label="t('photos', 'Mark selection as favorite')"
 							:title="t('photos', 'Favorite')"
@@ -91,11 +92,11 @@
 							:aria-label="t('photos', 'Remove selection from favorites')"
 							:title="t('photos', 'Remove from favorites')"
 							@click="unFavoriteSelection">
-							<Star slot="icon" />
+							<Star slot="icon" /> -->
 						</ActionButton>
 						<ActionButton :close-after-click="true"
 							:title="n('photos', 'Remove file from album', 'Remove files from album', selection.length)"
-							@click="removeFilesFromAlbum(selectedFileIds)">
+							@click="handleRemoveFilesFromAlbum(selectedFileIds)">
 							<template #icon>
 								<TrashCan />
 							</template>
@@ -112,7 +113,7 @@
 			</div>
 		</div>
 
-		<div v-if="album !== undefined && album.size === 0 && !(loadingFiles || loadingAlbums)" class="album__empty">
+		<div v-if="album !== undefined && album.nbItems === 0 && !(loadingFiles || loadingAlbums)" class="album__empty">
 			<EmptyContent>
 				<template #icon>
 					<ImagePlus />
@@ -164,15 +165,15 @@
 		<Modal v-if="showEditAlbumForm"
 			:title="t('photos', 'New album')"
 			@close="showEditAlbumForm = false">
-			<AlbumForm :album="album" @done="showEditAlbumForm = false" />
+			<AlbumForm :album="album" @done="redirectToNewName" />
 		</Modal>
 	</div>
 </template>
 
 <script>
 import { mapActions, mapGetters } from 'vuex'
-import MapMarker from 'vue-material-design-icons/MapMarker'
-import ShareVariant from 'vue-material-design-icons/ShareVariant'
+// import MapMarker from 'vue-material-design-icons/MapMarker'
+// import ShareVariant from 'vue-material-design-icons/ShareVariant'
 import Plus from 'vue-material-design-icons/Plus'
 import Pencil from 'vue-material-design-icons/Pencil'
 import TrashCan from 'vue-material-design-icons/TrashCan'
@@ -203,8 +204,8 @@ import { genFileInfo } from '../utils/fileUtils.js'
 export default {
 	name: 'AlbumContent',
 	components: {
-		MapMarker,
-		ShareVariant,
+		// MapMarker,
+		// ShareVariant,
 		Plus,
 		Pencil,
 		Star,
@@ -282,10 +283,17 @@ export default {
 	},
 
 	methods: {
-		...mapActions(['appendFiles', 'deleteAlbum', 'addFilesToAlbum', 'removeFilesFromAlbum']),
+		...mapActions([
+			'appendFiles',
+			'deleteAlbum',
+			'addFilesToAlbum',
+			'removeFilesFromAlbum',
+			'toggleFavoriteForFiles',
+			'downloadFiles',
+		]),
 
 		async fetchAlbumContent() {
-			if (this.loadingFiles) {
+			if (this.loadingFiles || this.showEditAlbumForm) {
 				return []
 			}
 
@@ -310,7 +318,9 @@ export default {
 
 				const fetchedFiles = response.data.map(file => genFileInfo(file))
 
-				const fileIds = fetchedFiles.map(file => file.fileid)
+				const fileIds = fetchedFiles
+					.map(file => file.fileid)
+					.map((fileId) => fileId.toString())
 
 				this.appendFiles(fetchedFiles)
 
@@ -350,6 +360,11 @@ export default {
 			})
 		},
 
+		redirectToNewName({ album }) {
+			this.showEditAlbumForm = false
+			this.$router.push(`/albums/${album.basename}`)
+		},
+
 		async handleFilesPicked(fileIds) {
 			try {
 				this.loadingCount++
@@ -362,10 +377,10 @@ export default {
 			}
 		},
 
-		async removeFilesFromAlbum(fileIds) {
+		async handleRemoveFilesFromAlbum(fileIds) {
 			try {
 				this.loadingCount++
-				await this.removeFilesFromAlbum({ albumName: this.albumName, fileIdsToAdd: fileIds })
+				await this.removeFilesFromAlbum({ albumName: this.albumName, fileIdsToRemove: fileIds })
 			} catch (error) {
 				logger.error(error)
 			} finally {

@@ -28,6 +28,7 @@ import { getCurrentUser } from '@nextcloud/auth'
 import client from '../services/DavClient.js'
 import logger from '../services/logger.js'
 import cancelableRequest from '../utils/CancelableRequest.js'
+import { genFileInfo } from '../utils/fileUtils.js'
 
 export default {
 	name: 'FetchAlbumsMixin',
@@ -67,7 +68,22 @@ export default {
 				const { request, cancel } = cancelableRequest(client.getDirectoryContents)
 				this.cancelAlbumsRequest = cancel
 
-				const albums = await request(`/photos/${getCurrentUser()?.uid}/albums`)
+				const response = await request(`/photos/${getCurrentUser()?.uid}/albums`, {
+					data: `<?xml version="1.0"?>
+							<d:propfind xmlns:d="DAV:"
+								xmlns:oc="http://owncloud.org/ns"
+								xmlns:nc="http://nextcloud.org/ns"
+								xmlns:ocs="http://open-collaboration-services.org/ns">
+								<d:prop>
+									<nc:cover />
+									<nc:nbItems />
+									<nc:location />
+								</d:prop>
+							</d:propfind>`,
+					details: true,
+
+				})
+				const albums = response.data.map(file => genFileInfo(file)).filter(album => album.filename !== '/photos/admin/albums')
 				this.$store.dispatch('addAlbums', { albums })
 				logger.debug(`[FetchAlbumsMixin] Fetched ${albums.length} new files: `, albums)
 			} catch (error) {

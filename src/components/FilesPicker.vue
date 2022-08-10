@@ -58,12 +58,12 @@
 		</div>
 		<div class="file-picker__actions">
 			<!-- TODO: Implement upload -->
-			<Button type="tertiary">
+			<!-- <Button type="tertiary">
 				<template #icon>
 					<Upload />
 				</template>
 				{{ t('photos', 'Upload from computer') }}
-			</Button>
+			</Button> -->
 			<Button type="primary" @click="emitPickedEvent">
 				<template #icon>
 					<ImagePlus />

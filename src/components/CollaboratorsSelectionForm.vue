@@ -20,7 +20,7 @@
  -
  -->
 <template>
-	<form class="add-collaborators-form">
+	<form class="add-collaborators-form" @submit.prevent>
 		<h2 class="form-title">
 			{{ t('photos', 'Add collaborators') }}
 		</h2>

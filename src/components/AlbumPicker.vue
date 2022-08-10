@@ -31,7 +31,10 @@
 				:key="album.basename"
 				class="album"
 				@click="pickAlbum(album.basename)">
-				<img class="album__image" :src="album.cover | toCoverUrl">
+				<img v-if="album.cover !== ''" class="album__image" :src="album.cover | toCoverUrl">
+				<div v-if="album.cover === ''" class="album__image album__image--placeholder">
+					<ImageMultiple :size="32" />
+				</div>
 				<div class="album__details">
 					<div class="album__details__first-line">
 						<b class="album__details__name">
@@ -40,7 +43,7 @@
 					</div>
 					<div class="album__details__second-line">
 						<!-- TODO: finish Shared count -->
-						{{ n('photos', '%n item', '%n items', album.size) }} ⸱ {{ n('photos', 'Share with %n user', 'Share with %n others', album.isShared) }}
+						<!-- {{ n('photos', '%n item', '%n items', album.nbItems) }} ⸱ {{ n('photos', 'Share with %n user', 'Share with %n others', album.isShared) }} -->
 					</div>
 				</div>
 			</div>
@@ -66,6 +69,7 @@
 
 <script>
 import Plus from 'vue-material-design-icons/Plus'
+import ImageMultiple from 'vue-material-design-icons/ImageMultiple'
 
 import { Button } from '@nextcloud/vue'
 import { generateUrl } from '@nextcloud/router'
@@ -82,6 +86,7 @@ export default {
 		AlbumForm,
 		Loader,
 		Plus,
+		ImageMultiple,
 	},
 
 	filters: {
@@ -163,11 +168,25 @@ export default {
 				border-radius: 4px;
 				margin-right: 8px;
 				background: var(--color-background-darker);
+
+				&--placeholder {
+					background: var(--color-main-background);
+
+					::v-deep .material-design-icon {
+						width: 100%;
+						height: 100%;
+
+						.material-design-icon__svg {
+							fill: var(--color-text-maxcontrast);
+						}
+					}
+				}
 			}
 
 			&__details {
 				display: flex;
 				flex-direction: column;
+				align-items: center
 
 				&__second-line {
 					color: var(--color-text-lighter);
