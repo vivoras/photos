@@ -365,6 +365,11 @@ export default {
 
 		::v-deep .material-design-icon__svg {
 			fill: #FC0;
+
+			path {
+				stroke: var(--color-primary-light);
+				stroke-width: 1px;
+			}
 		}
 	}
 }
