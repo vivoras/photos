@@ -29,12 +29,18 @@ use Sabre\DAV\Server;
 use Sabre\DAV\ServerPlugin;
 use OC\Metadata\IMetadataManager;
 use OCP\IPreview;
+use OCP\ITagManager;
 
 class PropFindPlugin extends ServerPlugin {
 	public const INTERNAL_FILEID_PROPERTYNAME = '{http://owncloud.org/ns}fileid';
 	public const FILE_METADATA_SIZE = '{http://nextcloud.org/ns}file-metadata-size';
 	public const HAS_PREVIEW_PROPERTYNAME = '{http://nextcloud.org/ns}has-preview';
 	public const FAVORITE_PROPERTYNAME = '{http://owncloud.org/ns}favorite';
+	public const COVER_PROPERTYNAME = '{http://nextcloud.org/ns}cover';
+	public const NBITEMS_PROPERTYNAME = '{http://nextcloud.org/ns}nbItems';
+	public const LOCATION_PROPERTYNAME = '{http://nextcloud.org/ns}location';
+
+	public const TAG_FAVORITE = '_$!<Favorite>!$_';
 
 	private Server $server;
 
@@ -67,13 +73,39 @@ class PropFindPlugin extends ServerPlugin {
 			});
 
 			$propFind->handle(self::FAVORITE_PROPERTYNAME, function () use ($node) {
-				// $tags = $this->getTags($fileId) || [];
-				// if (array_search(self::TAG_FAVORITE, $tags) !== false) {
-				// 	return 1;
-				// } else {
-				// 	return 0;
-				// }
-				return 0;
+				$tagManager = \OC::$server->get(ITagManager::class);
+				$tagger = $tagManager->load('files');
+				$tags = $tagger->getTagsForObjects([$node->getFileId()]);
+
+				if ($tags === false || empty($tags)) {
+					return 0;
+				} else {
+					if (array_search(self::TAG_FAVORITE, current($tags)) !== false) {
+						return 1;
+					} else {
+						return 0;
+					}
+				}
+			});
+		}
+
+		if ($node instanceof AlbumRoot) {
+			$propFind->handle(self::COVER_PROPERTYNAME, function () use ($node) {
+				$children = $node->getChildren();
+
+				if (count($children) > 0) {
+					return $children[0]->getFileId();
+				} else {
+					return '';
+				}
+			});
+
+			$propFind->handle(self::NBITEMS_PROPERTYNAME, function () use ($node) {
+				return count($node->getChildren());
+			});
+
+			$propFind->handle(self::LOCATION_PROPERTYNAME, function () use ($node) {
+				return '';
 			});
 		}
 	}
