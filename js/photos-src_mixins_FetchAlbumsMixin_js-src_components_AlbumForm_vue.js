@@ -11,16 +11,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
-/* harmony import */ var vue_material_design_icons_MapMarker__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue-material-design-icons/MapMarker */ "./node_modules/vue-material-design-icons/MapMarker.vue");
-/* harmony import */ var vue_material_design_icons_AccountMultiplePlus__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vue-material-design-icons/AccountMultiplePlus */ "./node_modules/vue-material-design-icons/AccountMultiplePlus.vue");
-/* harmony import */ var vue_material_design_icons_Send__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! vue-material-design-icons/Send */ "./node_modules/vue-material-design-icons/Send.vue");
-/* harmony import */ var _nextcloud_vue__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @nextcloud/vue */ "./node_modules/@nextcloud/vue/dist/ncvuecomponents.js");
-/* harmony import */ var _nextcloud_vue__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_nextcloud_vue__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _nextcloud_moment__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @nextcloud/moment */ "./node_modules/@nextcloud/moment/dist/index.js");
-/* harmony import */ var _nextcloud_moment__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_nextcloud_moment__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var _Loader_vue__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Loader.vue */ "./src/components/Loader.vue");
-/* harmony import */ var _CollaboratorsSelectionForm_vue__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./CollaboratorsSelectionForm.vue */ "./src/components/CollaboratorsSelectionForm.vue");
+/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
+/* harmony import */ var vue_material_design_icons_Send__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue-material-design-icons/Send */ "./node_modules/vue-material-design-icons/Send.vue");
+/* harmony import */ var _nextcloud_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @nextcloud/vue */ "./node_modules/@nextcloud/vue/dist/ncvuecomponents.js");
+/* harmony import */ var _nextcloud_vue__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_nextcloud_vue__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _nextcloud_moment__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @nextcloud/moment */ "./node_modules/@nextcloud/moment/dist/index.js");
+/* harmony import */ var _nextcloud_moment__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_nextcloud_moment__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _Loader_vue__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Loader.vue */ "./src/components/Loader.vue");
+/* harmony import */ var _CollaboratorsSelectionForm_vue__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./CollaboratorsSelectionForm.vue */ "./src/components/CollaboratorsSelectionForm.vue");
 //
 //
 //
@@ -118,9 +116,8 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-
-
+ // import MapMarker from 'vue-material-design-icons/MapMarker'
+// import AccountMultiplePlus from 'vue-material-design-icons/AccountMultiplePlus'
 
 
 
@@ -130,12 +127,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: 'AlbumForm',
   components: {
-    Button: _nextcloud_vue__WEBPACK_IMPORTED_MODULE_3__.Button,
-    MapMarker: vue_material_design_icons_MapMarker__WEBPACK_IMPORTED_MODULE_0__["default"],
-    AccountMultiplePlus: vue_material_design_icons_AccountMultiplePlus__WEBPACK_IMPORTED_MODULE_1__["default"],
-    Send: vue_material_design_icons_Send__WEBPACK_IMPORTED_MODULE_2__["default"],
-    Loader: _Loader_vue__WEBPACK_IMPORTED_MODULE_5__["default"],
-    CollaboratorsSelectionForm: _CollaboratorsSelectionForm_vue__WEBPACK_IMPORTED_MODULE_6__["default"]
+    Button: _nextcloud_vue__WEBPACK_IMPORTED_MODULE_1__.Button,
+    // MapMarker,
+    // AccountMultiplePlus,
+    Send: vue_material_design_icons_Send__WEBPACK_IMPORTED_MODULE_0__["default"],
+    Loader: _Loader_vue__WEBPACK_IMPORTED_MODULE_3__["default"],
+    CollaboratorsSelectionForm: _CollaboratorsSelectionForm_vue__WEBPACK_IMPORTED_MODULE_4__["default"]
   },
   props: {
     album: {
@@ -175,10 +172,14 @@ __webpack_require__.r(__webpack_exports__);
     });
   },
 
-  methods: { ...(0,vuex__WEBPACK_IMPORTED_MODULE_7__.mapActions)(['createAlbum', 'renameAlbum']),
+  methods: { ...(0,vuex__WEBPACK_IMPORTED_MODULE_5__.mapActions)(['createAlbum', 'renameAlbum']),
 
     submit() {
       let collaborators = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+
+      if (this.albumName === '' || this.loading) {
+        return;
+      }
 
       if (this.editMode) {
         this.handleUpdateAlbum(collaborators);
@@ -195,9 +196,10 @@ __webpack_require__.r(__webpack_exports__);
         const album = await this.createAlbum({
           album: {
             basename: this.albumName,
-            size: 0,
-            lastmod: _nextcloud_moment__WEBPACK_IMPORTED_MODULE_4___default()().unix(),
+            nbItems: 0,
             location: this.albumLocation,
+            cover: '',
+            date: _nextcloud_moment__WEBPACK_IMPORTED_MODULE_2___default()().format('MMMM YYYY'),
             collaborators
           }
         });
@@ -359,12 +361,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
-/* harmony import */ var _nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @nextcloud/dialogs */ "./node_modules/@nextcloud/dialogs/dist/index.es.js");
-/* harmony import */ var _nextcloud_auth__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @nextcloud/auth */ "./node_modules/@nextcloud/auth/dist/index.js");
-/* harmony import */ var _services_DavClient_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../services/DavClient.js */ "./src/services/DavClient.js");
-/* harmony import */ var _services_logger_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../services/logger.js */ "./src/services/logger.js");
-/* harmony import */ var _utils_CancelableRequest_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/CancelableRequest.js */ "./src/utils/CancelableRequest.js");
+/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
+/* harmony import */ var _nextcloud_moment__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @nextcloud/moment */ "./node_modules/@nextcloud/moment/dist/index.js");
+/* harmony import */ var _nextcloud_moment__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_nextcloud_moment__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @nextcloud/dialogs */ "./node_modules/@nextcloud/dialogs/dist/index.es.js");
+/* harmony import */ var _nextcloud_auth__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @nextcloud/auth */ "./node_modules/@nextcloud/auth/dist/index.js");
+/* harmony import */ var _services_DavClient_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../services/DavClient.js */ "./src/services/DavClient.js");
+/* harmony import */ var _services_logger_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../services/logger.js */ "./src/services/logger.js");
+/* harmony import */ var _utils_CancelableRequest_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/CancelableRequest.js */ "./src/utils/CancelableRequest.js");
+/* harmony import */ var _utils_fileUtils_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../utils/fileUtils.js */ "./src/utils/fileUtils.js");
 /**
  * @copyright Copyright (c) 2022 Louis Chemineau <louis@chmn.me>
  *
@@ -392,6 +397,8 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+
+
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: 'FetchAlbumsMixin',
 
@@ -411,7 +418,7 @@ __webpack_require__.r(__webpack_exports__);
     this.cancelAlbumsRequest('Changed view');
   },
 
-  computed: { ...(0,vuex__WEBPACK_IMPORTED_MODULE_5__.mapGetters)(['albums'])
+  computed: { ...(0,vuex__WEBPACK_IMPORTED_MODULE_7__.mapGetters)(['albums'])
   },
   methods: {
     async fetchAlbums() {
@@ -425,24 +432,63 @@ __webpack_require__.r(__webpack_exports__);
         const {
           request,
           cancel
-        } = (0,_utils_CancelableRequest_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_services_DavClient_js__WEBPACK_IMPORTED_MODULE_2__["default"].getDirectoryContents);
+        } = (0,_utils_CancelableRequest_js__WEBPACK_IMPORTED_MODULE_5__["default"])(_services_DavClient_js__WEBPACK_IMPORTED_MODULE_3__["default"].getDirectoryContents);
         this.cancelAlbumsRequest = cancel;
-        const albums = await request(`/photos/${(0,_nextcloud_auth__WEBPACK_IMPORTED_MODULE_1__.getCurrentUser)()?.uid}/albums`);
+        const response = await request(`/photos/${(0,_nextcloud_auth__WEBPACK_IMPORTED_MODULE_2__.getCurrentUser)()?.uid}/albums`, {
+          data: `<?xml version="1.0"?>
+							<d:propfind xmlns:d="DAV:"
+								xmlns:oc="http://owncloud.org/ns"
+								xmlns:nc="http://nextcloud.org/ns"
+								xmlns:ocs="http://open-collaboration-services.org/ns">
+								<d:prop>
+									<nc:cover />
+									<nc:nbItems />
+									<nc:location />
+									<nc:dateRange />
+								</d:prop>
+							</d:propfind>`,
+          details: true
+        });
+        const albums = response.data.filter(album => album.filename !== '/photos/admin/albums').map(album => (0,_utils_fileUtils_js__WEBPACK_IMPORTED_MODULE_6__.genFileInfo)(album)).map(album => {
+          const dateRange = JSON.parse(album.dateRange?.replace(/&quot;/g, '"') ?? '{}');
+
+          if (dateRange.start === null) {
+            dateRange.start = _nextcloud_moment__WEBPACK_IMPORTED_MODULE_0___default()().unix();
+            dateRange.end = _nextcloud_moment__WEBPACK_IMPORTED_MODULE_0___default()().unix();
+          }
+
+          const dateRangeFormated = {
+            startDate: _nextcloud_moment__WEBPACK_IMPORTED_MODULE_0___default().unix(dateRange.start).format('MMMM YYYY'),
+            endDate: _nextcloud_moment__WEBPACK_IMPORTED_MODULE_0___default().unix(dateRange.end).format('MMMM YYYY')
+          };
+
+          if (dateRangeFormated.startDate === dateRangeFormated.endDate) {
+            return { ...album,
+              date: this.t('photos', '{startDate}', dateRangeFormated)
+            };
+          } else {
+            return { ...album,
+              date: this.t('photos', '{startDate} to {endDate}', dateRangeFormated)
+            };
+          }
+        });
         this.$store.dispatch('addAlbums', {
           albums
         });
-        _services_logger_js__WEBPACK_IMPORTED_MODULE_3__["default"].debug(`[FetchAlbumsMixin] Fetched ${albums.length} new files: `, albums);
+        _services_logger_js__WEBPACK_IMPORTED_MODULE_4__["default"].debug(`[FetchAlbumsMixin] Fetched ${albums.length} new files: `, albums);
       } catch (error) {
         if (error.response && error.response.status) {
           if (error.response.status === 404) {
             this.errorFetchingAlbums = 404;
+          } else if (error.code === 'ERR_CANCELED') {
+            return;
           } else {
             this.errorFetchingAlbums = error;
           }
         }
 
-        _services_logger_js__WEBPACK_IMPORTED_MODULE_3__["default"].error(t('photos', 'Failed to fetch albums list.'), error);
-        (0,_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_0__.showError)(t('photos', 'Failed to fetch albums list.'));
+        _services_logger_js__WEBPACK_IMPORTED_MODULE_4__["default"].error(t('photos', 'Failed to fetch albums list.'), error);
+        (0,_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_1__.showError)(t('photos', 'Failed to fetch albums list.'));
       } finally {
         this.cancelAlbumsRequest = () => {};
 
@@ -1038,195 +1084,135 @@ var render = function () {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return !_vm.showCollaboratorView
-    ? _c("form", { staticClass: "album-form" }, [
-        _c("div", { staticClass: "form-inputs" }, [
-          _c("input", {
-            directives: [
-              {
-                name: "model",
-                rawName: "v-model",
-                value: _vm.albumName,
-                expression: "albumName",
-              },
-            ],
-            ref: "nameInput",
-            attrs: {
-              type: "text",
-              name: "name",
-              required: "",
-              autofocus: "true",
-              placeholder: _vm.t("photos", "Name of the album"),
+    ? _c(
+        "form",
+        {
+          staticClass: "album-form",
+          on: {
+            submit: function ($event) {
+              $event.preventDefault()
+              return _vm.submit.apply(null, arguments)
             },
-            domProps: { value: _vm.albumName },
-            on: {
-              input: function ($event) {
-                if ($event.target.composing) {
-                  return
-                }
-                _vm.albumName = $event.target.value
-              },
-            },
-          }),
-          _vm._v(" "),
-          !_vm.editMode
-            ? _c(
-                "label",
-                [
-                  _c("MapMarker"),
-                  _c("input", {
-                    directives: [
-                      {
-                        name: "model",
-                        rawName: "v-model",
-                        value: _vm.albumLocation,
-                        expression: "albumLocation",
-                      },
-                    ],
-                    attrs: {
-                      name: "location",
-                      type: "text",
-                      placeholder: _vm.t("photos", "Location of the album"),
-                    },
-                    domProps: { value: _vm.albumLocation },
-                    on: {
-                      input: function ($event) {
-                        if ($event.target.composing) {
-                          return
-                        }
-                        _vm.albumLocation = $event.target.value
-                      },
-                    },
-                  }),
-                ],
-                1
-              )
-            : _vm._e(),
-        ]),
-        _vm._v(" "),
-        _c("div", { staticClass: "form-buttons" }, [
-          _c(
-            "span",
-            { staticClass: "left-buttons" },
-            [
-              _vm.displayBackButton
-                ? _c(
-                    "Button",
-                    {
-                      attrs: {
-                        "aria-label": _vm.t(
-                          "photo",
-                          "Go back to the previous view"
-                        ),
-                        type: "tertiary",
-                      },
-                      on: { click: _vm.back },
-                    },
-                    [
-                      _vm._v(
-                        "\n\t\t\t\t" +
-                          _vm._s(_vm.t("photo", "Back")) +
-                          "\n\t\t\t"
-                      ),
-                    ]
-                  )
-                : _vm._e(),
-            ],
-            1
-          ),
-          _vm._v(" "),
-          _c(
-            "span",
-            { staticClass: "right-buttons" },
-            [
-              !_vm.editMode
-                ? _c(
-                    "Button",
-                    {
-                      attrs: {
-                        "aria-label": _vm.t(
-                          "photo",
-                          "Go to the add collaborators view."
-                        ),
-                        type: "secondary",
-                        disabled: _vm.albumName.trim() === "" || _vm.loading,
-                      },
-                      on: {
-                        click: function ($event) {
-                          _vm.showCollaboratorView = true
-                        },
-                      },
-                      scopedSlots: _vm._u(
-                        [
-                          {
-                            key: "icon",
-                            fn: function () {
-                              return [_c("AccountMultiplePlus")]
-                            },
-                            proxy: true,
-                          },
-                        ],
-                        null,
-                        false,
-                        1531126728
-                      ),
-                    },
-                    [
-                      _vm._v(
-                        "\n\t\t\t\t" +
-                          _vm._s(_vm.t("photo", "Add collaborators")) +
-                          "\n\t\t\t"
-                      ),
-                    ]
-                  )
-                : _vm._e(),
-              _vm._v(" "),
-              _c(
-                "Button",
+          },
+        },
+        [
+          _c("div", { staticClass: "form-inputs" }, [
+            _c("input", {
+              directives: [
                 {
-                  attrs: {
-                    "aria-label": _vm.editMode
-                      ? _vm.t("photo", "Save.")
-                      : _vm.t("photo", "Create the album."),
-                    type: "primary",
-                    disabled: _vm.albumName.trim() === "" || _vm.loading,
-                  },
-                  on: {
-                    click: function ($event) {
-                      return _vm.submit()
-                    },
-                  },
-                  scopedSlots: _vm._u(
-                    [
-                      {
-                        key: "icon",
-                        fn: function () {
-                          return [_vm.loading ? _c("Loader") : _c("Send")]
-                        },
-                        proxy: true,
-                      },
-                    ],
-                    null,
-                    false,
-                    862849841
-                  ),
+                  name: "model",
+                  rawName: "v-model.trim",
+                  value: _vm.albumName,
+                  expression: "albumName",
+                  modifiers: { trim: true },
                 },
-                [
-                  _vm._v(
-                    "\n\t\t\t\t" +
-                      _vm._s(
-                        _vm.editMode
-                          ? _vm.t("photo", "Save")
-                          : _vm.t("photo", "Create album")
-                      ) +
-                      "\n\t\t\t"
-                  ),
-                ]
-              ),
-            ],
-            1
-          ),
-        ]),
-      ])
+              ],
+              ref: "nameInput",
+              attrs: {
+                type: "text",
+                name: "name",
+                required: "",
+                autofocus: "true",
+                placeholder: _vm.t("photos", "Name of the album"),
+              },
+              domProps: { value: _vm.albumName },
+              on: {
+                input: function ($event) {
+                  if ($event.target.composing) {
+                    return
+                  }
+                  _vm.albumName = $event.target.value.trim()
+                },
+                blur: function ($event) {
+                  return _vm.$forceUpdate()
+                },
+              },
+            }),
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "form-buttons" }, [
+            _c(
+              "span",
+              { staticClass: "left-buttons" },
+              [
+                _vm.displayBackButton
+                  ? _c(
+                      "Button",
+                      {
+                        attrs: {
+                          "aria-label": _vm.t(
+                            "photo",
+                            "Go back to the previous view"
+                          ),
+                          type: "tertiary",
+                        },
+                        on: { click: _vm.back },
+                      },
+                      [
+                        _vm._v(
+                          "\n\t\t\t\t" +
+                            _vm._s(_vm.t("photo", "Back")) +
+                            "\n\t\t\t"
+                        ),
+                      ]
+                    )
+                  : _vm._e(),
+              ],
+              1
+            ),
+            _vm._v(" "),
+            _c(
+              "span",
+              { staticClass: "right-buttons" },
+              [
+                _c(
+                  "Button",
+                  {
+                    attrs: {
+                      "aria-label": _vm.editMode
+                        ? _vm.t("photo", "Save.")
+                        : _vm.t("photo", "Create the album."),
+                      type: "primary",
+                      disabled: _vm.albumName === "" || _vm.loading,
+                    },
+                    on: {
+                      click: function ($event) {
+                        return _vm.submit()
+                      },
+                    },
+                    scopedSlots: _vm._u(
+                      [
+                        {
+                          key: "icon",
+                          fn: function () {
+                            return [_vm.loading ? _c("Loader") : _c("Send")]
+                          },
+                          proxy: true,
+                        },
+                      ],
+                      null,
+                      false,
+                      862849841
+                    ),
+                  },
+                  [
+                    _vm._v(
+                      "\n\t\t\t\t" +
+                        _vm._s(
+                          _vm.editMode
+                            ? _vm.t("photo", "Save")
+                            : _vm.t("photo", "Create album")
+                        ) +
+                        "\n\t\t\t"
+                    ),
+                  ]
+                ),
+              ],
+              1
+            ),
+          ]),
+        ]
+      )
     : _c("CollaboratorsSelectionForm", {
         staticClass: "add-collaborators-form",
         on: {
@@ -1348,51 +1334,66 @@ var render = function () {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("form", { staticClass: "add-collaborators-form" }, [
-    _c("h2", { staticClass: "form-title" }, [
-      _vm._v("\n\t\t" + _vm._s(_vm.t("photos", "Add collaborators")) + "\n\t"),
-    ]),
-    _vm._v(" "),
-    _c("div", { staticClass: "form-subtitle" }, [
-      _vm._v(
-        "\n\t\t" +
-          _vm._s(_vm.t("photos", "Add users who can edit your album")) +
-          "\n\t"
+  return _c(
+    "form",
+    {
+      staticClass: "add-collaborators-form",
+      on: {
+        submit: function ($event) {
+          $event.preventDefault()
+        },
+      },
+    },
+    [
+      _c("h2", { staticClass: "form-title" }, [
+        _vm._v(
+          "\n\t\t" + _vm._s(_vm.t("photos", "Add collaborators")) + "\n\t"
+        ),
+      ]),
+      _vm._v(" "),
+      _c("div", { staticClass: "form-subtitle" }, [
+        _vm._v(
+          "\n\t\t" +
+            _vm._s(_vm.t("photos", "Add users who can edit your album")) +
+            "\n\t"
+        ),
+      ]),
+      _vm._v(" "),
+      _c("div", { staticClass: "form-subtitle" }, [
+        _vm._v(
+          "\n\t\t" +
+            _vm._s(_vm.t("photos", "Share this album via link")) +
+            "\n\t"
+        ),
+      ]),
+      _vm._v(" "),
+      _c(
+        "div",
+        { staticClass: "form-inputs" },
+        [
+          _c("Magnify"),
+          _c("input", {
+            attrs: {
+              type: "text",
+              name: "search",
+              placeholder: _vm.t(
+                "photos",
+                "Search users, email or federated cloud ID"
+              ),
+            },
+          }),
+        ],
+        1
       ),
-    ]),
-    _vm._v(" "),
-    _c("div", { staticClass: "form-subtitle" }, [
-      _vm._v(
-        "\n\t\t" + _vm._s(_vm.t("photos", "Share this album via link")) + "\n\t"
+      _vm._v(" "),
+      _c(
+        "div",
+        { staticClass: "form-buttons" },
+        [_vm._t("default", null, { collaborators: "collaborators" })],
+        2
       ),
-    ]),
-    _vm._v(" "),
-    _c(
-      "div",
-      { staticClass: "form-inputs" },
-      [
-        _c("Magnify"),
-        _c("input", {
-          attrs: {
-            type: "text",
-            name: "search",
-            placeholder: _vm.t(
-              "photos",
-              "Search users, email or federated cloud ID"
-            ),
-          },
-        }),
-      ],
-      1
-    ),
-    _vm._v(" "),
-    _c(
-      "div",
-      { staticClass: "form-buttons" },
-      [_vm._t("default", null, { collaborators: "collaborators" })],
-      2
-    ),
-  ])
+    ]
+  )
 }
 var staticRenderFns = []
 render._withStripped = true
@@ -1435,4 +1436,4 @@ render._withStripped = true
 /***/ })
 
 }]);
-//# sourceMappingURL=photos-src_mixins_FetchAlbumsMixin_js-src_components_AlbumForm_vue.js.map?v=479f857a1de9563e620e
+//# sourceMappingURL=photos-src_mixins_FetchAlbumsMixin_js-src_components_AlbumForm_vue.js.map?v=c9f8df01fd6f0782c380

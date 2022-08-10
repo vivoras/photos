@@ -11,14 +11,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
+/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
 /* harmony import */ var _nextcloud_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @nextcloud/vue */ "./node_modules/@nextcloud/vue/dist/ncvuecomponents.js");
 /* harmony import */ var _nextcloud_vue__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_nextcloud_vue__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _components_TiledLayout_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../components/TiledLayout.vue */ "./src/components/TiledLayout.vue");
-/* harmony import */ var _components_TiledRows_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../components/TiledRows.vue */ "./src/components/TiledRows.vue");
-/* harmony import */ var _components_VirtualScrolling_vue__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../components/VirtualScrolling.vue */ "./src/components/VirtualScrolling.vue");
-/* harmony import */ var _components_Loader_vue__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../components/Loader.vue */ "./src/components/Loader.vue");
-/* harmony import */ var _assets_Illustrations_empty_svg__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../assets/Illustrations/empty.svg */ "./src/assets/Illustrations/empty.svg");
+/* harmony import */ var _components_VirtualScrolling_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../components/VirtualScrolling.vue */ "./src/components/VirtualScrolling.vue");
+/* harmony import */ var _components_Loader_vue__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../components/Loader.vue */ "./src/components/Loader.vue");
+/* harmony import */ var _assets_Illustrations_empty_svg__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../assets/Illustrations/empty.svg */ "./src/assets/Illustrations/empty.svg");
 //
 //
 //
@@ -70,7 +69,13 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -82,9 +87,8 @@ __webpack_require__.r(__webpack_exports__);
   components: {
     EmptyContent: _nextcloud_vue__WEBPACK_IMPORTED_MODULE_0__.EmptyContent,
     TiledLayout: _components_TiledLayout_vue__WEBPACK_IMPORTED_MODULE_1__["default"],
-    TiledRows: _components_TiledRows_vue__WEBPACK_IMPORTED_MODULE_2__["default"],
-    VirtualScrolling: _components_VirtualScrolling_vue__WEBPACK_IMPORTED_MODULE_3__["default"],
-    Loader: _components_Loader_vue__WEBPACK_IMPORTED_MODULE_4__["default"]
+    VirtualScrolling: _components_VirtualScrolling_vue__WEBPACK_IMPORTED_MODULE_2__["default"],
+    Loader: _components_Loader_vue__WEBPACK_IMPORTED_MODULE_3__["default"]
   },
   props: {
     // Array of file ids that should be rendered.
@@ -141,11 +145,11 @@ __webpack_require__.r(__webpack_exports__);
 
   data() {
     return {
-      EmptyBox: _assets_Illustrations_empty_svg__WEBPACK_IMPORTED_MODULE_5__
+      EmptyBox: _assets_Illustrations_empty_svg__WEBPACK_IMPORTED_MODULE_4__
     };
   },
 
-  computed: { ...(0,vuex__WEBPACK_IMPORTED_MODULE_6__.mapGetters)(['files']),
+  computed: { ...(0,vuex__WEBPACK_IMPORTED_MODULE_5__.mapGetters)(['files']),
 
     /**
      * @return {object[]} The list of items to pass to TiledLayout.
@@ -398,11 +402,11 @@ __webpack_require__.r(__webpack_exports__);
     },
     renderWindowRatio: {
       type: Number,
-      default: 6
+      default: 4
     },
     willBeVisibleWindowRatio: {
       type: Number,
-      default: 5
+      default: 4
     },
     visibleWindowRatio: {
       type: Number,
@@ -477,12 +481,13 @@ __webpack_require__.r(__webpack_exports__);
     },
 
     /**
-     * Total height of all the rows.
+     * Total height of all the rows + some room for the loader.
      *
      * @return {number}
      */
     rowsHeight() {
-      return this.rows.map(row => row.height).reduce((totalHeight, rowHeight) => totalHeight + rowHeight, 0);
+      const loaderHeight = 200;
+      return this.rows.map(row => row.height).reduce((totalHeight, rowHeight) => totalHeight + rowHeight, 0) + loaderHeight;
     },
 
     /**
@@ -703,7 +708,7 @@ __webpack_require__.r(__webpack_exports__);
      * @param {object} options - Options to pass to getPhotos.
      * @param {string[]} [blacklist=[]] - Array of ids to filter out.
      * @return {Promise<string[]>} - The next batch of data depending on global offset.
-    */
+     */
     async fetchFiles() {
       let path = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
       let options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
@@ -739,7 +744,7 @@ __webpack_require__.r(__webpack_exports__);
 
         const fileIds = fetchedFiles.map(file => file.fileid).filter(fileId => !this.fetchedFileIds.includes(fileId)); // Filter to prevent duplicate fileIds.
 
-        this.fetchedFileIds.push(...fileIds.filter(fileId => !blacklist.includes(fileId)));
+        this.fetchedFileIds.push(...fileIds.map(fileId => fileId.toString()).filter(fileId => !blacklist.includes(fileId)));
         this.$store.dispatch('appendFiles', fetchedFiles);
         _services_logger_js__WEBPACK_IMPORTED_MODULE_0__["default"].debug(`[FetchFilesMixin] Fetched ${fileIds.length} new files: `, fileIds);
         return fileIds;
@@ -747,6 +752,8 @@ __webpack_require__.r(__webpack_exports__);
         if (error.response && error.response.status) {
           if (error.response.status === 404) {
             this.errorFetchingFiles = 404;
+          } else if (error.code === 'ERR_CANCELED') {
+            return [];
           } else {
             this.errorFetchingFiles = error;
           }
@@ -880,11 +887,7 @@ __webpack_require__.r(__webpack_exports__);
   data() {
     return {
       /** @type {Object<string, boolean>} */
-      selection: {},
-
-      /** @type {Object<string, string[]>} */
-      sections: {} // To be override by the component that use the mixin.
-
+      selection: {}
     };
   },
 
@@ -903,7 +906,7 @@ __webpack_require__.r(__webpack_exports__);
     onUncheckFiles(filesIds) {
       filesIds.forEach((
       /** @type {string} */
-      filesId) => this.$set(this.selectedFiles, filesId, false));
+      filesId) => this.$set(this.selection, filesId, false));
     }
 
   },
@@ -1249,7 +1252,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, ".files-list-viewer[data-v-3ebf26b2] {\n  height: 100%;\n  position: relative;\n}\n.files-list-viewer[data-v-3ebf26b2]  .empty-content__icon {\n  width: 200px;\n  height: 200px;\n}\n.files-list-viewer[data-v-3ebf26b2]  .empty-content__icon .empty-content-illustration svg {\n  width: 200px;\n  height: 200px;\n}\n.files-list-viewer__loader[data-v-3ebf26b2] {\n  margin: 50px 0;\n}", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, ".files-list-viewer[data-v-3ebf26b2] {\n  height: 100%;\n  position: relative;\n}\n.files-list-viewer[data-v-3ebf26b2]  .empty-content__icon {\n  width: 200px;\n  height: 200px;\n}\n.files-list-viewer[data-v-3ebf26b2]  .empty-content__icon .empty-content-illustration svg {\n  width: 200px;\n  height: 200px;\n}\n.files-list-viewer .tiled-row[data-v-3ebf26b2] {\n  display: flex;\n}\n.files-list-viewer__section-header[data-v-3ebf26b2] {\n  position: sticky;\n  top: 0;\n  z-index: 3;\n  background: var(--color-main-background);\n}\n.files-list-viewer__loader[data-v-3ebf26b2] {\n  margin: 50px 0;\n}", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -1933,26 +1936,47 @@ var render = function () {
                       key: "default",
                       fn: function (ref) {
                         var renderedRows = ref.renderedRows
-                        return _c("TiledRows", {
-                          attrs: { rows: renderedRows },
-                          scopedSlots: _vm._u(
-                            [
+                        return _c(
+                          "ul",
+                          {},
+                          _vm._l(renderedRows, function (row) {
+                            return _c(
+                              "div",
                               {
-                                key: "default",
-                                fn: function (ref) {
-                                  var row = ref.row
-                                  var item = ref.item
-                                  return _vm._t("default", null, {
-                                    file: item,
-                                    visibility: row.visibility,
-                                  })
+                                key: row.key,
+                                staticClass: "tiled-row",
+                                class: {
+                                  "files-list-viewer__section-header":
+                                    row.items[0].sectionHeader,
                                 },
+                                style: { height: row.height + "px" },
                               },
-                            ],
-                            null,
-                            true
-                          ),
-                        })
+                              _vm._l(row.items, function (item) {
+                                return _c(
+                                  "li",
+                                  {
+                                    key: item.id,
+                                    style: {
+                                      width: item.ratio
+                                        ? row.height * item.ratio + "px"
+                                        : "100%",
+                                      height: row.height + "px",
+                                    },
+                                  },
+                                  [
+                                    _vm._t("default", null, {
+                                      file: item,
+                                      visibility: row.visibility,
+                                    }),
+                                  ],
+                                  2
+                                )
+                              }),
+                              0
+                            )
+                          }),
+                          0
+                        )
                       },
                     },
                     _vm.loading
@@ -2130,4 +2154,4 @@ render._withStripped = true
 /***/ })
 
 }]);
-//# sourceMappingURL=photos-src_mixins_FetchFilesMixin_js-src_mixins_FilesByMonthMixin_js-src_mixins_FilesSelectionMixin_-258105.js.map?v=95cfe46cb284731db2d5
+//# sourceMappingURL=photos-src_mixins_FetchFilesMixin_js-src_mixins_FilesByMonthMixin_js-src_mixins_FilesSelectionMixin_-258105.js.map?v=576acb58b074be469273
