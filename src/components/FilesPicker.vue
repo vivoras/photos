@@ -22,7 +22,8 @@
 <template>
 	<div class="file-picker">
 		<div class="file-picker__content">
-			<div class="file-picker__navigation">
+			<div class="file-picker__navigation"
+				:class="{'file-picker__navigation--loading': loadingFiles && monthsList.length === 0}">
 				<div v-for="month in monthsList"
 					:key="month"
 					class="file-picker__navigation__month"
@@ -32,6 +33,7 @@
 				</div>
 			</div>
 			<FilesListViewer class="file-picker__file-list"
+				:class="{'file-picker__file-list--loading': loadingFiles && monthsList.length === 0}"
 				:file-ids-by-section="fileIdsByMonth"
 				:sections="monthsList"
 				:loading="loadingFiles"
@@ -174,6 +176,11 @@ export default {
 		padding-right: 8px;
 		height: 100%;
 
+		&--loading {
+			background: var(--color-primary-light);
+			border-radius: 16px;
+		}
+
 		&__month {
 			font-weight: bold;
 			font-size: 16px;
@@ -196,6 +203,11 @@ export default {
 		flex-grow: 1;
 		min-width: 0;
 		height: 100%;
+
+		&--loading {
+			background: var(--color-primary-light);
+			border-radius: 16px;
+		}
 
 		.section-header {
 			font-weight: bold;
