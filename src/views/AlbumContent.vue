@@ -493,8 +493,6 @@ export default {
 		}
 
 		&__title {
-			min-width: 300px;
-
 			.album-location {
 				margin-left: -4px;
 				display: flex;

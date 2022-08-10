@@ -144,10 +144,12 @@ const actions = {
 						`/photos/${getCurrentUser()?.uid}/albums/${albumName}/${fileBaseName}`
 					)
 				} catch (error) {
-					context.commit('removeFilesFromAlbum', { albumName, fileIdsToRemove: [fileId] })
+					if (error.response.status !== 409) { // Already in the album.
+						context.commit('removeFilesFromAlbum', { albumName, fileIdsToRemove: [fileId] })
 
-					logger.error(t('photos', 'Failed to add {fileBaseName} to album {albumName}.', { fileBaseName, albumName }), error)
-					showError(t('photos', 'Failed to add {fileBaseName} to album {albumName}.', { fileBaseName, albumName }))
+						logger.error(t('photos', 'Failed to add {fileBaseName} to album {albumName}.', { fileBaseName, albumName }), error)
+						showError(t('photos', 'Failed to add {fileBaseName} to album {albumName}.', { fileBaseName, albumName }))
+					}
 				} finally {
 					semaphore.release(symbol)
 				}

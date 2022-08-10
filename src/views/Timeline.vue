@@ -122,14 +122,14 @@
 			key="albumCreationForm"
 			:title="t('photos', 'New album')"
 			@close="showAlbumCreationForm = false">
-			<AlbumForm @album-created="showAlbumCreationForm = false" />
+			<AlbumForm @done="showAlbumCreationForm = false" />
 		</Modal>
 
 		<Modal v-if="showAlbumPicker"
 			key="albumPicker"
 			:title="t('photos', 'Add to album')"
 			@close="showAlbumPicker = false">
-			<AlbumPicker @done="addSelectionToAlbum" />
+			<AlbumPicker @album-picked="addSelectionToAlbum" />
 		</Modal>
 	</div>
 </template>
