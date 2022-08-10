@@ -110,14 +110,12 @@ export default {
 
 				return fileIds
 			} catch (error) {
-				if (error.response && error.response.status) {
-					if (error.response.status === 404) {
-						this.errorFetchingFiles = 404
-					} else if (error.code === 'ERR_CANCELED') {
-						return []
-					} else {
-						this.errorFetchingFiles = error
-					}
+				if (error.response?.status === 404) {
+					this.errorFetchingFiles = 404
+				} else if (error.code === 'ERR_CANCELED') {
+					return []
+				} else {
+					this.errorFetchingFiles = error
 				}
 
 				// cancelled request, moving on...

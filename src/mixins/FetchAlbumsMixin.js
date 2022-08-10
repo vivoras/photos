@@ -111,14 +111,12 @@ export default {
 				this.$store.dispatch('addAlbums', { albums })
 				logger.debug(`[FetchAlbumsMixin] Fetched ${albums.length} new files: `, albums)
 			} catch (error) {
-				if (error.response && error.response.status) {
-					if (error.response.status === 404) {
-						this.errorFetchingAlbums = 404
-					} else if (error.code === 'ERR_CANCELED') {
-						return
-					} else {
-						this.errorFetchingAlbums = error
-					}
+				if (error.response?.status === 404) {
+					this.errorFetchingAlbums = 404
+				} else if (error.code === 'ERR_CANCELED') {
+					return
+				} else {
+					this.errorFetchingAlbums = error
 				}
 				logger.error(t('photos', 'Failed to fetch albums list.'), error)
 				showError(t('photos', 'Failed to fetch albums list.'))
