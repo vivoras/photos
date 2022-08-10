@@ -27,8 +27,6 @@ export default {
 		return {
 			/** @type {Object<string, boolean>} */
 			selection: {},
-			/** @type {Object<string, string[]>} */
-			sections: {}, // To be override by the component that use the mixin.
 		}
 	},
 
