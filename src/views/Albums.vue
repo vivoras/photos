@@ -134,7 +134,7 @@ export default {
 	display: flex;
 	flex-direction: column;
 	height: calc(100vh - var(--header-height));
-	padding: 4px 64px;
+	padding: 4px 0;
 
 	@media only screen and (max-width: 1200px) {
 		padding: 4px 32px;
@@ -144,6 +144,7 @@ export default {
 		display: flex;
 		min-height: 60px;
 		align-items: center;
+		padding: 0 64px;
 
 		button {
 			margin-right: 32px;
@@ -152,8 +153,7 @@ export default {
 
 	&__list {
 		margin-top: 8px;
-		padding-top: 24px;
-		padding-bottom: 32px;
+		padding: 24px 48px 32px 48px;
 		flex-grow: 1;
 		display: flex;
 		flex-wrap: wrap;
