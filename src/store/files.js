@@ -122,21 +122,6 @@ const getters = {
 
 const actions = {
 	/**
-	 * Update files, folders and their respective subfolders
-	 *
-	 * @param {object} context the store mutations
-	 * @param {object} data destructuring object
-	 * @param {object} data.folder current folder fileinfo
-	 * @param {Array} data.files list of files
-	 * @param {Array} data.folders list of folders within current folder
-	 */
-	updateFiles(context, { folder, files = [], folders = [] } = {}) {
-		// we want all the FileInfo! Folders included!
-		context.commit('updateFiles', [folder, ...files, ...folders])
-		context.commit('setSubFolders', { fileid: folder.fileid, folders })
-	},
-
-	/**
 	 * Append or update given files
 	 *
 	 * @param {object} context the store mutations

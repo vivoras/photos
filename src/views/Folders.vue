@@ -3,6 +3,7 @@
  -
  - @author John Molakvoæ <skjnldsv@protonmail.com>
  - @author Corentin Mors <medias@pixelswap.fr>
+ - @author Louis Chemineau <louis@chmn.me>
  -
  - @license AGPL-3.0-or-later
  -
@@ -23,62 +24,99 @@
 
 <template>
 	<!-- Errors handlers-->
-	<EmptyContent v-if="error === 404" illustration-name="folder">
+	<EmptyContent v-if="folder === undefined && !loadingFolder" class="empty-content-with-illustration">
+		<template #icon>
+			<!-- eslint-disable-next-line vue/no-v-html -->
+			<span class="empty-content-illustration" v-html="FolderIllustration" />
+		</template>
 		{{ t('photos', 'This folder does not exist') }}
 	</EmptyContent>
-	<EmptyContent v-else-if="error">
+	<EmptyContent v-else-if="errorFetchingFolder">
+		<template #icon>
+			<AlertCircle />
+		</template>
 		{{ t('photos', 'An error occurred') }}
 	</EmptyContent>
 
 	<!-- Folder content -->
-	<div v-else-if="!loading">
-		<Navigation v-if="folder"
-			key="navigation"
-			v-bind="folder"
-			:root-title="rootTitle"
-			:show-actions="true" />
+	<div v-else-if="!loadingFolder && folder !== undefined" class="folder">
+		<div class="folder__name">
+			{{ path === '/' ? 'Home' : path }}
+		</div>
+
 		<!-- Empty folder, should only happen via direct link -->
-		<EmptyContent v-if="isEmpty" key="emptycontent" illustration-name="empty">
-			{{ t('photos', 'No photos in here') }}
+		<EmptyContent v-if="folderContent.fileIds.length === 0 && folderContent.folderIds.length === 0 && !loadingFolder"
+			key="emptycontent">
+			<template #icon>
+				<!-- eslint-disable-next-line vue/no-v-html -->
+				<span class="empty-content-illustration" v-html="EmptyBox" />
+			</template>
+			{{ t('photos', "This folder is empty!") }}
 		</EmptyContent>
 
-		<div v-else class="grid-container">
-			<VirtualGrid ref="virtualgrid"
-				:items="contentList"
-				:get-column-count="() => gridConfig.count"
-				:get-grid-gap="() => gridConfig.gap" />
+		<!-- Folder's folders -->
+		<div class="folder__folders-list">
+			<div v-if="folderContent.folderIds.length !== 0" class="folder__folders-list__title">
+				{{ t('photos', 'Folders') }}
+			</div>
+			<div class="folder__folders-list__container" :class="{'folder__folders-list__container--nofiles': folderContent.fileIds.length === 0}">
+				<Folder v-for="folderId in folderContent.folderIds"
+					:key="folderId"
+					:folder-id="folderId"
+					class="folder__folders-list__container__link" />
+			</div>
+		</div>
+
+		<!-- Folder's files -->
+		<div class="folder__files-list">
+			<div v-if="folderContent.fileIds.length !== 0" class="folder__files-list__title">
+				{{ t('photos', 'Photos and videos') }}
+			</div>
+			<FilesListViewer v-if="folder !== undefined"
+				:use-window="true"
+				:file-ids="folderContent.fileIds"
+				:loading="loadingFolder">
+				<File slot-scope="{file, visibility}"
+					:file="files[file.id]"
+					:allow-selection="true"
+					:selected="selection[file.id] === true"
+					:visibility="visibility"
+					:semaphore="semaphore"
+					@click="openViewer"
+					@select-toggled="onFileSelectToggle" />
+			</FilesListViewer>
 		</div>
 	</div>
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 
-import getAlbumContent from '../services/AlbumContent.js'
-
-import VirtualGrid from 'vue-virtual-grid'
+import getFolderContent from '../services/FolderContent.js'
 import EmptyContent from '../components/EmptyContent.vue'
-import Folder from '../components/Folder.vue'
-import FileLegacy from '../components/FileLegacy.vue'
-import Navigation from '../components/Navigation.vue'
-
-import GridConfigMixin from '../mixins/GridConfig.js'
-
+import FilesSelectionMixin from '../mixins/FilesSelectionMixin.js'
 import cancelableRequest from '../utils/CancelableRequest.js'
+import EmptyBox from '../assets/Illustrations/empty.svg'
+import FolderIllustration from '../assets/Illustrations/folder.svg'
+import FilesListViewer from '../components/FilesListViewer.vue'
+import Folder from '../components/Folder.vue'
+import File from '../components/File.vue'
+import SemaphoreWithPriority from '../utils/semaphoreWithPriority.js'
 
 export default {
 	name: 'Folders',
 	components: {
-		VirtualGrid,
 		EmptyContent,
-		Navigation,
+		FilesListViewer,
+		Folder,
+		File,
 	},
-	mixins: [GridConfigMixin],
+
+	mixins: [
+		FilesSelectionMixin,
+	],
+
 	props: {
-		rootTitle: {
-			type: String,
-			required: true,
-		},
 		path: {
 			type: String,
 			default: '/',
@@ -91,93 +129,33 @@ export default {
 
 	data() {
 		return {
-			error: null,
+			errorFetchingFolder: null,
 			cancelRequest: () => {},
-			loading: false,
+			loadingFolder: false,
+			EmptyBox,
+			FolderIllustration,
+			semaphore: new SemaphoreWithPriority(30),
+			fetchSemaphore: new SemaphoreWithPriority(1),
+			semaphoreSymbol: null,
 		}
 	},
 
 	computed: {
-		// global lists
 		...mapGetters([
 			'files',
 			'folders',
+			'foldersContent',
+			'paths',
 		]),
 
-		// current folder id from current path
-		folderId() {
-			return this.$store.getters.folderId(this.path)
-		},
-
-		// files list of the current folder
+		/** @return {object} */
 		folder() {
-			return this.files[this.folderId]
+			return this.folders[this.paths[this.path]]
 		},
+
+		/** @return {object} */
 		folderContent() {
-			return this.folders[this.folderId]
-		},
-		fileList() {
-			const list = this.folderContent
-				&& this.folderContent
-					.map(id => this.files[id])
-					.filter(file => !!file)
-			return list
-		},
-
-		// subfolders of the current folder
-		subFolders() {
-			return this.folderId
-				&& this.files[this.folderId]
-				&& this.files[this.folderId].folders
-		},
-		folderList() {
-			const list = this.subFolders
-				&& this.subFolders
-					.map(id => this.files[id])
-					.filter(file => !!file)
-			return list
-		},
-		contentList() {
-			const folders = this.folderList?.map((folder) => {
-				return {
-					id: `folder-${folder.fileid}`,
-					injected: {
-						...folder,
-						showShared: this.showShared,
-					},
-					width: 256,
-					height: 256,
-					columnSpan: 1,
-					renderComponent: Folder,
-				}
-			})
-
-			const files = this.fileList?.map((file) => {
-				return {
-					id: `file-${file.fileid}`,
-					injected: {
-						...file,
-						list: this.fileList,
-					},
-					width: 256,
-					height: 256,
-					columnSpan: 1,
-					renderComponent: FileLegacy,
-				}
-			})
-
-			return [...(folders || []), ...(files || [])]
-		},
-
-		// is current folder empty?
-		isEmpty() {
-			return !this.haveFiles && !this.haveFolders
-		},
-		haveFiles() {
-			return !!this.fileList && this.fileList.length !== 0
-		},
-		haveFolders() {
-			return !!this.folderList && this.folderList.length !== 0
+			return this.foldersContent[this.paths[this.path]]
 		},
 	},
 
@@ -199,6 +177,11 @@ export default {
 	},
 
 	methods: {
+		...mapActions([
+			'addFolder',
+			'appendFiles',
+		]),
+
 		async fetchFolderContent() {
 			// cancel any pending requests
 			this.cancelRequest('Changed folder')
@@ -209,49 +192,114 @@ export default {
 
 			// if we don't already have some cached data let's show a loader
 			if (!this.files[this.folderId] || !this.folders[this.folderId]) {
-				this.loading = true
+				this.loadingFolder = true
 			}
-			this.error = null
+			this.errorFetchingFolder = null
 
 			// init cancellable request
-			const { request, cancel } = cancelableRequest(getAlbumContent)
+			const { request, cancel } = cancelableRequest(getFolderContent)
 			this.cancelRequest = cancel
 
 			try {
 				// get content and current folder info
 				const { folder, folders, files } = await request(this.path, { shared: this.showShared })
-				this.$store.dispatch('addPath', { path: this.path, fileid: folder.fileid })
-				this.$store.dispatch('updateFolders', { fileid: folder.fileid, files, folders })
-				this.$store.dispatch('updateFiles', { folder, files, folders })
+
+				this.appendFiles(files)
+				this.addFolder({
+					folder,
+					fileIds: files.map(file => file.fileid).map((fileId) => fileId.toString()),
+					folderIds: folders.map(folder => folder.fileid).map((fileId) => fileId.toString()),
+				})
+
+				for (const f of folders) {
+					this.addFolder({
+						folder: f,
+						fileIds: [],
+						folderIds: [],
+					})
+				}
 			} catch (error) {
-				if (error.response && error.response.status) {
-					if (error.response.status === 404) {
-						this.error = 404
-						setTimeout(() => {
-							this.$router.push({ name: this.$route.name })
-						}, 3000)
-					} else {
-						this.error = error
-					}
+				if (error.response?.status === 404) {
+					this.errorFetchingFolder = 404
+				} else if (error.code === 'ERR_CANCELED') {
+					return []
+				} else {
+					this.errorFetchingFolder = error
 				}
 				// cancelled request, moving on...
-				console.error('Error fetching album data', error)
+				console.error('Error fetching folder data', error)
 			} finally {
-				// done loading even with errors
-				this.loading = false
+				// done loadingFolder even with errors
+				this.loadingFolder = false
 			}
 		},
-	},
 
+		openViewer(fileId) {
+			const file = this.files[fileId]
+			OCA.Viewer.open({
+				path: file.filename,
+				list: Object.values(this.folderContent.fileIds).map(fileId => this.files[fileId]),
+				loadMore: file.loadMore ? async () => await file.loadMore(true) : () => [],
+				canLoop: file.canLoop,
+			})
+		},
+	},
 }
 </script>
-
 <style lang="scss" scoped>
-@import '../mixins/GridSizes';
+.folder {
+	padding: 0 64px;
 
-.grid-container {
-	@include grid-sizes using ($marginTop, $marginW) {
-		padding: 0px #{$marginW}px 256px #{$marginW}px;
+	&__name {
+		display: flex;
+		align-items: center;
+		font-size: 24px;
+		font-weight: bold;
+		height: 60px;
+	}
+
+	&__folders-list {
+		display: flex;
+		flex-direction: column;
+		width: 100%;
+
+		&__title {
+			font-size: 16px;
+			font-weight: bold;
+			margin-bottom: 16px;
+		}
+
+		&__container {
+			display: flex;
+			gap: 16px;
+			overflow: scroll;
+			// flex-direction: column;
+			// width: 300px;
+			// height: 700px;
+			// transform-origin: right top;
+			// transform:rotate(-90deg) translateY(-100px);
+
+			&--nofiles {
+				overflow: initial;
+				flex-wrap: wrap;
+			}
+
+			// &__link {
+				// height: 300px;
+				// transform: rotate(90deg);
+				// transform-origin: right top;
+			// }
+		}
+	}
+
+	&__files-list {
+		margin-top: 32px;
+
+		&__title {
+			font-size: 16px;
+			font-weight: bold;
+			margin-bottom: 16px;
+		}
 	}
 }
 </style>

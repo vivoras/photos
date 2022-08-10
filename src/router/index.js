@@ -99,9 +99,6 @@ export default new Router({
 			name: 'folders',
 			props: route => ({
 				path: parsePathParams(route.params.path),
-				// if path is empty
-				isRoot: !route.params.path,
-				rootTitle: t('photos', 'Folders'),
 			}),
 		},
 		{
@@ -110,9 +107,6 @@ export default new Router({
 			name: 'shared',
 			props: route => ({
 				path: parsePathParams(route.params.path),
-				// if path is empty
-				isRoot: !route.params.path,
-				rootTitle: t('photos', 'Shared with you'),
 				showShared: true,
 			}),
 		},

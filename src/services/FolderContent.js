@@ -22,6 +22,7 @@
 
 import axios from '@nextcloud/axios'
 import { generateUrl } from '@nextcloud/router'
+
 import { genFileInfo, encodeFilePath } from '../utils/fileUtils.js'
 import allowedMimes from './AllowedMimes.js'
 
@@ -33,7 +34,7 @@ import allowedMimes from './AllowedMimes.js'
  * @param {boolean} [options.shared] fetch shared albums ?
  * @return {Promise<object[]>} the file list
  */
-export default async function(path = '/', options = {}) {
+export default async function (path = '/', options = {}) {
 	const prefixPath = generateUrl(`/apps/photos/api/v1/${options.shared ? 'shared' : 'albums'}`)
 
 	// fetch listing

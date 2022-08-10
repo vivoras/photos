@@ -22,30 +22,50 @@
  -->
 
 <template>
-	<FolderTagPreview :id="item.injected.fileid"
-		:name="item.injected.basename"
-		:path="item.injected.filename"
-		:file-list="previewFiles" />
+	<router-link class="folder-cover" :to="`/folders/${folder.filename}`">
+		<div class="folder-cover__previews">
+			<template v-for="(fileId, index) in previewFiles">
+				<img v-if="fileId !== 'placeholder'"
+					:key="fileId"
+					class="folder-cover__previews__preview"
+					:src="fileId | imageSrc">
+				<div v-if="fileId === 'placeholder'"
+					:key="`placeholder-${index}`"
+					class="folder-cover__previews__preview folder-cover__previews--placeholder" />
+			</template>
+		</div>
+		<div class="folder-cover__name">
+			{{ folder.basename }}
+		</div>
+	</router-link>
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 
-import getAlbumContent from '../services/AlbumContent'
-import cancelableRequest from '../utils/CancelableRequest'
-import FolderTagPreview from './FolderTagPreview'
+import { generateUrl } from '@nextcloud/router'
+
+import getFolderContent from '../services/FolderContent.js'
+import cancelableRequest from '../utils/CancelableRequest.js'
 
 export default {
 	name: 'Folder',
 
-	components: {
-		FolderTagPreview,
+	filters: {
+		/**
+		 * @param fileId
+		 * @return {string}
+		 */
+		imageSrc(fileId) {
+			return generateUrl(`/core/preview?fileId=${fileId}&x=${512}&y=${512}&forceIcon=0&a=1`)
+		},
 	},
+
 	inheritAttrs: false,
 
 	props: {
-		item: {
-			type: Object,
+		folderId: {
+			type: String,
 			required: true,
 		},
 	},
@@ -53,7 +73,6 @@ export default {
 	data() {
 		return {
 			cancelRequest: null,
-			previewFolder: this.item.injected.fileid,
 		}
 	},
 
@@ -62,42 +81,47 @@ export default {
 		...mapGetters([
 			'files',
 			'folders',
+			'foldersContent',
 		]),
 
-		// files list of the current folder
-		folderContent() {
-			return this.folders[this.item.injected.fileid]
+		folder() {
+			return this.folders[this.folderId]
 		},
-		previewFiles() {
-			const previewFolderContent = this.folders[this.previewFolder]
 
-			const previewFiles = previewFolderContent
-				? previewFolderContent
-					.map(id => this.files[id])
-					.slice(0, 4) // only get the 4 first images
-				: []
+		folderContent() {
+			return this.foldersContent[this.folderId]
+		},
+
+		folderFiles() {
+			return this.folderContent.fileIds.map(fileId => this.files[fileId])
+		},
+
+		folderFolders() {
+			return this.folderContent.folderIds.map(folderId => this.folders[folderId])
+		},
+
+		previewFiles() {
+			let previewFiles = this.foldersContent[this.folderId].fileIds.slice(0, 4) // only get the 4 first images
 
 			// If we didn't found any previews in the folder we try the next subfolder
 			// We limit to one subfolder for performance concerns
-			if (previewFiles.length === 0
-				&& this.files[this.previewFolder].folders
-				&& this.previewFolder === this.item.injected.fileid) {
+			if (previewFiles.length === 0 && this.folderFolders.length > 0) {
+				const firstChildFolderId = this.folderFolders[0].fileid
 
-				const firstChildFolder = this.files[this.previewFolder].folders[0]
-				this.updatePreviewFolder(firstChildFolder)
-
-				if (!this.folders[this.previewFolder]) {
-					this.getFolderData(this.files[this.previewFolder].filename)
+				if (this.foldersContent[firstChildFolderId].fileIds.length === 0) {
+					this.fetchFolderContent(this.folders[firstChildFolderId].filename)
 				}
+
+				previewFiles = this.foldersContent[firstChildFolderId].fileIds.slice(0, 4) // only get the 4 first images
 			}
 
-			return previewFiles
+			return [...previewFiles, ...(new Array(4 - previewFiles.length).fill('placeholder'))]
 		},
 	},
 
 	async created() {
-		if (!this.folderContent) {
-			await this.getFolderData(this.item.injected.filename)
+		if (this.folderFiles.length === 0) {
+			await this.fetchFolderContent(this.folder.filename)
 		}
 	},
 
@@ -109,133 +133,103 @@ export default {
 	},
 
 	methods: {
-		async getFolderData(filename) {
+		...mapActions([
+			'addFolder',
+			'appendFiles',
+		]),
+
+		async fetchFolderContent(folderPath) {
+			// close any potential opened viewer & sidebar
+			OCA.Viewer && OCA.Viewer.close && OCA.Viewer.close()
+			OCA.Files && OCA.Files.Sidebar.close && OCA.Files.Sidebar.close()
+
+			// if we don't already have some cached data let's show a loader
+			if (!this.files[this.folderId] || !this.folders[this.folderId]) {
+				this.loadingFolder = true
+			}
+			this.errorFetchingFolder = null
+
 			// init cancellable request
-			const { request, cancel } = cancelableRequest(getAlbumContent)
+			const { request, cancel } = cancelableRequest(getFolderContent)
 			this.cancelRequest = cancel
 
 			try {
-				// get data
-				const { folder, folders, files } = await request(filename, { shared: this.item.injected.showShared })
-				this.$store.dispatch('updateFolders', { fileid: folder.fileid, files, folders })
-				this.$store.dispatch('updateFiles', { folder, files, folders })
-			} catch (error) {
-				if (error.response && error.response.status) {
-					console.error('Failed to get folder content', filename, error.response)
-				}
-				// else we just cancelled the request
-			} finally {
-				this.cancelRequest = null
-			}
-		},
+				// get content and current folder info
+				const { folder, folders, files } = await request(folderPath, { shared: this.showShared })
 
-		updatePreviewFolder(path) {
-			this.previewFolder = path
+				this.appendFiles(files)
+				this.addFolder({
+					folder,
+					fileIds: files.map(file => file.fileid).map((fileId) => fileId.toString()),
+					folderIds: folders.map(folder => folder.fileid).map((fileId) => fileId.toString()),
+				})
+
+				for (const f of folders) {
+					this.addFolder({
+						folder: f,
+						fileIds: [],
+						folderIds: [],
+					})
+				}
+			} catch (error) {
+				if (error.response?.status === 404) {
+					this.errorFetchingFolder = 404
+				} else if (error.code === 'ERR_CANCELED') {
+					return []
+				} else {
+					this.errorFetchingFolder = error
+				}
+				// cancelled request, moving on...
+				console.error('Error fetching folder data', error)
+			} finally {
+				// done loadingFolder even with errors
+				this.loadingFolder = false
+			}
 		},
 	},
 }
 </script>
 
 <style lang="scss" scoped>
-@import '../mixins/FileFolder';
-
-.folder-content {
-	position: absolute;
-	display: grid;
-	width: 100%;
-	height: 100%;
-	// folder layout if less than 4 pictures
-	&--grid-1 {
-		grid-template-columns: 1fr;
-		grid-template-rows: 1fr;
-	}
-	&--grid-2 {
-		grid-template-columns: 1fr;
-		grid-template-rows: 1fr 1fr;
-	}
-	&--grid-3 {
-		grid-template-columns: 1fr 1fr;
-		grid-template-rows: 1fr 1fr;
-		img:first-child {
-			grid-column: span 2;
-		}
-	}
-	&--grid-4 {
-		grid-template-columns: 1fr 1fr;
-		grid-template-rows: 1fr 1fr;
-	}
-	img {
-		width: 100%;
-		height: 100%;
-
-		object-fit: cover;
-	}
-}
-
-$name-height: 1rem;
-
-.folder-name {
-	position: absolute;
-	z-index: 3;
-	display: flex;
-	overflow: hidden;
+.folder-cover {
+	display:flex;
 	flex-direction: column;
-	width: 100%;
-	height: 100%;
-	transition: opacity var(--animation-quick) ease-in-out;
-	opacity: 1;
-	&__icon {
-		height: 40%;
-		margin-top: calc(30% - #{$name-height} / 2); // center name+icon
-		background-size: 40%;
+	border-radius: 12px;
+	padding: 16px;
+
+	&:hover {
+		background: var(--color-background-dark);
 	}
-	&__name {
+
+	&__previews {
+		display:flex;
+		flex-wrap: wrap;
+		border-radius: 12px;
 		overflow: hidden;
-		height: $name-height;
-		padding: 0 10px;
-		text-align: center;
-		white-space: nowrap;
-		text-overflow: ellipsis;
-		color: var(--color-main-background);
-		text-shadow: 0 0 8px var(--color-main-text);
-		font-size: $name-height;
-		line-height: $name-height;
-	}
-}
+		width: 200px;
+		height: 200px;
+		background: var(--color-primary-light);
 
-// Cover management empty/full
-.folder {
-	// if no img, let's display the folder icon as default black
-	&--clear {
-		.folder-name__icon {
-			opacity: .3;
-		}
-		.folder-name__name {
-			color: var(--color-main-text);
-			text-shadow: 0 0 8px var(--color-main-background);
-		}
-	}
+		&__preview {
+			width: 100px;
+			height: 100px;
+			object-fit: cover;
 
-	// show the cover as background
-	// if  there are pictures in it
-	// so we can sho the folder+name above it
-	&:not(.folder--clear) {
-		.cover {
-			opacity: .3;
-		}
-
-		// hide everything but pictures
-		// on hover/active/focus
-		&.active,
-		&:active,
-		&:hover,
-		&:focus {
-			.folder-name,
-			.cover {
-				opacity: 0;
+			&--placeholder {
+				background: var(--color-primary-light);
 			}
 		}
 	}
-}
 
+	&__name {
+		font-weight: bold;
+		text-align: center;
+		padding-top: 16px;
+		padding-bottom: 24px;
+		width: 180px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+}
 </style>
