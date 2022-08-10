@@ -85,8 +85,7 @@
 							@click="downloadSelection">
 							<Download slot="icon" />
 						</ActionButton>
-						<!-- TODO: fix favorite -->
-						<!-- <ActionButton v-if="shouldFavoriteSelection"
+						<ActionButton v-if="shouldFavoriteSelection"
 							:close-after-click="true"
 							:aria-label="t('photos', 'Mark selection as favorite')"
 							:title="t('photos', 'Favorite')"
@@ -99,7 +98,7 @@
 							:title="t('photos', 'Remove from favorites')"
 							@click="unFavoriteSelection">
 							<Star slot="icon" />
-						</ActionButton> -->
+						</ActionButton>
 						<ActionButton :close-after-click="true"
 							:title="n('photos', 'Remove item from album', 'Remove items from album', selection.length)"
 							@click="handleRemoveFilesFromAlbum(selectedFileIds)">

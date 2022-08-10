@@ -201,10 +201,10 @@ const actions = {
 
 		const promises = fileIds
 			.map(async (fileId) => {
-				await semaphore.acquire()
+				const symbole = await semaphore.acquire()
 				await favoriteFile(state.files[fileId].filename, favoriteState)
 				context.commit('favoriteFile', { fileId, favoriteState })
-				return semaphore.release()
+				return semaphore.release(symbole)
 			})
 
 		return Promise.all(promises)
