@@ -198,6 +198,7 @@ import logger from '../services/logger.js'
 import client from '../services/DavClient.js'
 import DavRequest from '../services/DavRequest.js'
 import cancelableRequest from '../utils/CancelableRequest.js'
+import { genFileInfo } from '../utils/fileUtils.js'
 
 export default {
 	name: 'AlbumContent',
@@ -299,12 +300,15 @@ export default {
 				const { request, cancel } = cancelableRequest(client.getDirectoryContents)
 				this.cancelFilesRequest = cancel
 
-				const fetchedFiles = await request(
+				const response = await request(
 					`/photos/${getCurrentUser()?.uid}/albums/${this.albumName}`,
 					{
 						data: DavRequest,
+						details: true,
 					}
 				)
+
+				const fetchedFiles = response.data.map(file => genFileInfo(file))
 
 				const fileIds = fetchedFiles.map(file => file.fileid)
 

@@ -82,6 +82,7 @@ const mutations = {
 				...fileIdsToAdd.filter(fileId => !albumFiles.includes(fileId)), // Filter to prevent duplicate fileId.
 			],
 		}
+		state.albums[albumName].size += fileIdsToAdd.length
 	},
 
 	/**
@@ -97,6 +98,7 @@ const mutations = {
 			...state.albumsFiles,
 			[albumName]: state.albumsFiles[albumName].filter(fileId => !fileIdsToRemove.includes(fileId)),
 		}
+		state.albums[albumName].size -= fileIdsToRemove.length
 	},
 }
 
