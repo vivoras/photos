@@ -24,7 +24,7 @@
 	<router-link class="album-cover" :to="`/albums/${baseName}`">
 		<img v-if="album.cover !== ''" class="album-cover__image" :src="coverUrl">
 		<div v-if="album.cover === ''" class="album-cover__image album-cover__image--placeholder">
-			<ImageMultiple :size="64" />
+			<ImageMultiple :size="128" />
 		</div>
 		<div class="album-cover__details">
 			<div class="album-cover__details__first-line">
@@ -122,14 +122,14 @@ export default {
 		}
 
 		&--placeholder {
-			background: var(--color-main-background);
+			background: var(--color-primary-light);
 
 			::v-deep .material-design-icon {
 				width: 100%;
 				height: 100%;
 
 				.material-design-icon__svg {
-					fill: var(--color-text-maxcontrast);
+					fill: var(--color-primary);
 				}
 			}
 		}
@@ -138,6 +138,7 @@ export default {
 	&__details {
 		display: flex;
 		flex-direction: column;
+		margin-top: 16px;
 
 		&__first-line {
 			display: flex;

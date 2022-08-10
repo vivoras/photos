@@ -34,7 +34,7 @@
 				<template #icon>
 					<Plus />
 				</template>
-				{{ t('photo', 'New Album') }}
+				{{ t('photo', 'New album') }}
 			</Button>
 
 			<Loader v-if="loadingAlbums" />
