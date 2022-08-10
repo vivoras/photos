@@ -130,7 +130,6 @@ export default {
 </script>
 <style lang="scss" scoped>
 .albums {
-	height: 100%;
 	display: flex;
 	flex-direction: column;
 	height: calc(100vh - var(--header-height));

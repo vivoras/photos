@@ -7,7 +7,3 @@ export default {
 	name: 'ShareAlbumForm',
 }
 </script>
-
-<style>
-
-</style>

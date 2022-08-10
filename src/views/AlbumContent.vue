@@ -144,7 +144,7 @@
 			:use-window="true"
 			:file-ids="albumFileIds"
 			:loading="loadingFiles || loadingAlbums">
-			<File slot-scope="{file, height, visibility}"
+			<File slot-scope="{file, visibility}"
 				:file="files[file.id]"
 				:allow-selection="true"
 				:selected="selection[file.id] === true"

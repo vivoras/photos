@@ -188,7 +188,7 @@ export default {
 				flex-direction: column;
 				align-items: center
 
-				&__second-line {
+					&__second-line{
 					color: var(--color-text-lighter);
 				}
 			}

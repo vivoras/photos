@@ -60,10 +60,10 @@
 import { generateRemoteUrl, generateUrl } from '@nextcloud/router'
 import { getCurrentUser } from '@nextcloud/auth'
 
-import UserConfig from '../mixins/UserConfig'
+import UserConfig from '../mixins/UserConfig.js'
 
 export default {
-	name: 'File',
+	name: 'FileLegacy',
 	mixins: [UserConfig],
 	inheritAttrs: false,
 	props: {

@@ -40,7 +40,7 @@ import moment from '@nextcloud/moment'
  * @param {boolean} [options.onlyFavorites=false] get only favorite items
  * @return {Promise<object[]>} the file list
  */
-export default async function (path = '', options = {}) {
+export default async function(path = '', options = {}) {
 	// default function options
 	options = {
 		firstResult: 0,

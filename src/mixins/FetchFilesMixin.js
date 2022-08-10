@@ -66,7 +66,7 @@ export default {
 		 * @param {object} options - Options to pass to getPhotos.
 		 * @param {string[]} [blacklist=[]] - Array of ids to filter out.
 		 * @return {Promise<string[]>} - The next batch of data depending on global offset.
-		*/
+		 */
 		async fetchFiles(path = '', options = {}, blacklist = []) {
 			if (this.doneFetchingFiles || this.loadingFiles) {
 				return []
