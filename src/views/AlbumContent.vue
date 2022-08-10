@@ -72,12 +72,18 @@
 							<Pencil />
 						</template>
 					</ActionButton>
+					<ActionButton :close-after-click="true"
+						:aria-label="t('photos', 'Download all files in album')"
+						:title="t('photos', 'Download all files in album')"
+						@click="downloadAllFiles">
+						<DownloadMultiple slot="icon" />
+					</ActionButton>
 					<template v-if="selectedFileIds.length > 0">
 						<ActionButton :close-after-click="true"
 							:aria-label="t('photos', 'Download selection')"
-							:title="t('photos', 'Download')"
+							:title="t('photos', 'Download selected files')"
 							@click="downloadSelection">
-							<DownloadOutline slot="icon" />
+							<Download slot="icon" />
 						</ActionButton>
 						<!-- TODO: fix favorite -->
 						<!-- <ActionButton v-if="shouldFavoriteSelection"
@@ -92,13 +98,13 @@
 							:aria-label="t('photos', 'Remove selection from favorites')"
 							:title="t('photos', 'Remove from favorites')"
 							@click="unFavoriteSelection">
-							<Star slot="icon" /> -->
-						</ActionButton>
+							<Star slot="icon" />
+						</ActionButton> -->
 						<ActionButton :close-after-click="true"
-							:title="n('photos', 'Remove file from album', 'Remove files from album', selection.length)"
+							:title="n('photos', 'Remove item from album', 'Remove items from album', selection.length)"
 							@click="handleRemoveFilesFromAlbum(selectedFileIds)">
 							<template #icon>
-								<TrashCan />
+								<Close />
 							</template>
 						</ActionButton>
 					</template>
@@ -106,7 +112,7 @@
 						:title="t('photos', 'Delete album')"
 						@click="handleDeleteAlbum">
 						<template #icon>
-							<TrashCan />
+							<Delete />
 						</template>
 					</ActionButton>
 				</Actions>
@@ -153,7 +159,7 @@
 			size="large"
 			:title="t('photos', 'Add photos to the album')"
 			@close="showAddPhotosModal = false">
-			<FilesPicker :blacklist-ids="albumFileIds" @files-picked="handleFilesPicked" />
+			<FilesPicker :destination="album.basename" :blacklist-ids="albumFileIds" @files-picked="handleFilesPicked" />
 		</Modal>
 
 		<Modal v-else-if="showShareModal"
@@ -176,11 +182,13 @@ import { mapActions, mapGetters } from 'vuex'
 // import ShareVariant from 'vue-material-design-icons/ShareVariant'
 import Plus from 'vue-material-design-icons/Plus'
 import Pencil from 'vue-material-design-icons/Pencil'
-import TrashCan from 'vue-material-design-icons/TrashCan'
+import Delete from 'vue-material-design-icons/Delete'
 import ImagePlus from 'vue-material-design-icons/ImagePlus'
 import AlertCircle from 'vue-material-design-icons/AlertCircle'
 import Star from 'vue-material-design-icons/Star'
-import DownloadOutline from 'vue-material-design-icons/DownloadOutline'
+import Close from 'vue-material-design-icons/Close'
+import Download from 'vue-material-design-icons/Download'
+import DownloadMultiple from 'vue-material-design-icons/DownloadMultiple'
 
 import { Actions, ActionButton, Button, Modal, EmptyContent } from '@nextcloud/vue'
 import { getCurrentUser } from '@nextcloud/auth'
@@ -209,8 +217,10 @@ export default {
 		Plus,
 		Pencil,
 		Star,
-		DownloadOutline,
-		TrashCan,
+		Close,
+		Download,
+		DownloadMultiple,
+		Delete,
 		ImagePlus,
 		AlertCircle,
 		FilesListViewer,
@@ -426,6 +436,17 @@ export default {
 			}
 		},
 
+		async downloadAllFiles() {
+			try {
+				this.loadingCount++
+				await this.downloadFiles(this.albumFileIds)
+			} catch (error) {
+				logger.error(error)
+			} finally {
+				this.loadingCount--
+			}
+		},
+
 		async downloadSelection() {
 			try {
 				this.loadingCount++
@@ -469,7 +490,7 @@ export default {
 		&__left {
 			height: 100%;
 			display: flex;
-			align-items: flex-start;
+			align-items: center;
 		}
 
 		&__title {

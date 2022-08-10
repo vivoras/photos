@@ -62,7 +62,7 @@
 						:aria-label="t('photos', 'Download selection')"
 						:title="t('photos', 'Download')"
 						@click="downloadSelection">
-						<DownloadOutline slot="icon" />
+						<Download slot="icon" />
 					</ActionButton>
 					<ActionButton v-if="shouldFavorite"
 						:close-after-click="true"
@@ -82,7 +82,7 @@
 						:title="t('photos', 'Delete')"
 						:aria-label="t('photos', 'Delete selection')"
 						@click="deleteSelection">
-						<TrashCan slot="icon" />
+						<Delete slot="icon" />
 					</ActionButton>
 				</Actions>
 				<!-- HACK: Needed to make the above Actions work, no idea why be it is like that in the documentation. -->
@@ -137,11 +137,11 @@
 <script>
 import { mapActions, mapGetters } from 'vuex'
 import Plus from 'vue-material-design-icons/Plus'
-import TrashCan from 'vue-material-design-icons/TrashCan'
+import Delete from 'vue-material-design-icons/Delete'
 import PlusBoxMultiple from 'vue-material-design-icons/PlusBoxMultiple'
 import FileUpload from 'vue-material-design-icons/FileUpload'
 import Star from 'vue-material-design-icons/Star'
-import DownloadOutline from 'vue-material-design-icons/DownloadOutline'
+import Download from 'vue-material-design-icons/Download'
 
 import { Modal, Actions, ActionButton, Button } from '@nextcloud/vue'
 import moment from '@nextcloud/moment'
@@ -172,11 +172,11 @@ export default {
 		ActionButton,
 		Button,
 		Plus,
-		TrashCan,
+		Delete,
 		FileUpload,
 		PlusBoxMultiple,
 		Star,
-		DownloadOutline,
+		Download,
 	},
 
 	filters: {
@@ -354,8 +354,6 @@ export default {
 	}
 
 	&__file-list {
-		margin-top: 60px;
-
 		::v-deep .files-list-viewer__section-header {
 			top: calc(var(--header-height) + 60px);
 		}
