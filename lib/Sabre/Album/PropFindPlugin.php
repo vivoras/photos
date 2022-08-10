@@ -27,8 +27,15 @@ use Sabre\DAV\INode;
 use Sabre\DAV\PropFind;
 use Sabre\DAV\Server;
 use Sabre\DAV\ServerPlugin;
+use OC\Metadata\IMetadataManager;
+use OCP\IPreview;
 
 class PropFindPlugin extends ServerPlugin {
+	public const INTERNAL_FILEID_PROPERTYNAME = '{http://owncloud.org/ns}fileid';
+	public const FILE_METADATA_SIZE = '{http://nextcloud.org/ns}file-metadata-size';
+	public const HAS_PREVIEW_PROPERTYNAME = '{http://nextcloud.org/ns}has-preview';
+	public const FAVORITE_PROPERTYNAME = '{http://owncloud.org/ns}favorite';
+
 	private Server $server;
 
 	public function initialize(Server $server) {
@@ -39,12 +46,35 @@ class PropFindPlugin extends ServerPlugin {
 
 
 	public function propFind(PropFind $propFind, INode $node) {
-		if (!($node instanceof AlbumPhoto)) {
-			return;
-		}
+		if ($node instanceof AlbumPhoto) {
+			$propFind->handle('{http://nextcloud.org/ns}file-name', function () use ($node) {
+				return $node->getFile()->getName();
+			});
 
-		$propFind->handle('{http://nextcloud.org/ns}file-name', function () use ($node) {
-			return $node->getFile()->getName();
-		});
+			$propFind->handle(self::INTERNAL_FILEID_PROPERTYNAME, function () use ($node) {
+				return $node->getFile()->getFileId();
+			});
+
+			$propFind->handle(self::FILE_METADATA_SIZE, function () use ($node) {
+				$metadataManager = \OC::$server->get(IMetadataManager::class);
+				$sizeMetadata = $metadataManager->fetchMetadataFor('size', [$node->getFileId()])[$node->getFileId()];
+				return json_encode((object)$sizeMetadata->getMetadata());
+			});
+
+			$propFind->handle(self::HAS_PREVIEW_PROPERTYNAME, function () use ($node) {
+				$previewManager = \OC::$server->get(IPreview::class);
+				return json_encode($previewManager->isAvailable($node->getFileInfo()));
+			});
+
+			$propFind->handle(self::FAVORITE_PROPERTYNAME, function () use ($node) {
+				// $tags = $this->getTags($fileId) || [];
+				// if (array_search(self::TAG_FAVORITE, $tags) !== false) {
+				// 	return 1;
+				// } else {
+				// 	return 0;
+				// }
+				return 0;
+			});
+		}
 	}
 }

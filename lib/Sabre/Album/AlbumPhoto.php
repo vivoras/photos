@@ -81,6 +81,20 @@ class AlbumPhoto implements IFile {
 		}
 	}
 
+	public function getFileId() {
+		return $this->file->getFileId();
+	}
+
+	public function getFileInfo() {
+		$nodes = $this->userFolder->getById($this->file->getFileId());
+		$node = current($nodes);
+		if ($node) {
+			return $node->getFileInfo();
+		} else {
+			throw new NotFoundException("Photo not found for user");
+		}
+	}
+
 	public function getContentType() {
 		return $this->file->getMimeType();
 	}
