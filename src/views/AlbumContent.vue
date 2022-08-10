@@ -316,7 +316,9 @@ export default {
 					}
 				)
 
-				const fetchedFiles = response.data.map(file => genFileInfo(file))
+				const fetchedFiles = response.data
+					.map(file => genFileInfo(file))
+					.map(file => ({ ...file, filename: file.realpath.replace(`/${getCurrentUser().uid}/files`, '') }))
 
 				const fileIds = fetchedFiles
 					.map(file => file.fileid)

@@ -58,6 +58,10 @@ class PropFindPlugin extends ServerPlugin {
 				return $node->getFile()->getName();
 			});
 
+			$propFind->handle('{http://nextcloud.org/ns}realpath', function () use ($node) {
+				return $node->getFileInfo()->getPath();
+			});
+
 			$propFind->handle(self::INTERNAL_FILEID_PROPERTYNAME, function () use ($node) {
 				return $node->getFile()->getFileId();
 			});
