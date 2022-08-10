@@ -60,17 +60,17 @@
 		</div>
 		<div class="file-picker__actions">
 			<!-- TODO: Implement upload -->
-			<!-- <Button type="tertiary">
+			<Button type="tertiary">
 				<template #icon>
 					<Upload />
 				</template>
 				{{ t('photos', 'Upload from computer') }}
-			</Button> -->
+			</Button>
 			<Button type="primary" @click="emitPickedEvent">
 				<template #icon>
 					<ImagePlus />
 				</template>
-				{{ t('photos', 'Add photos') }}
+				{{ t('photos', 'Add items to {destination}', { destination }) }}
 			</Button>
 		</div>
 	</div>
@@ -116,8 +116,14 @@ export default {
 		FilesSelectionMixin,
 	],
 
-	// List of file ids to not show.
 	props: {
+		// Label to show in the submit button.
+		destination: {
+			type: String,
+			required: true,
+		},
+
+		// List of file ids to not show.
 		blacklistIds: {
 			type: Array,
 			default: () => [],
@@ -223,5 +229,4 @@ export default {
 		padding-top: 16px;
 	}
 }
-
 </style>
