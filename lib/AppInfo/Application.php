@@ -62,7 +62,7 @@ class Application extends App implements IBootstrap {
 	}
 
 	public function register(IRegistrationContext $context): void {
-        $context->registerDashboardWidget(OnThisDay::class);
+		$context->registerDashboardWidget(OnThisDay::class);
 		/** Register $principalBackend for the DAV collection */
 		$context->registerServiceAlias('principalBackend', Principal::class);
 		$context->registerEventListener(NodeDeletedEvent::class, MoveToTrashListener::class);
