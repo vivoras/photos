@@ -289,7 +289,7 @@ const router = new Router({
 			}),
 			meta: {
 				rootTitle: (to) => {
-					return t('photos', "{title}'s face", { title: to.params.rootTitle })
+					return t('photos', "{title}'s face", { title: to.params.faceName })
 				},
 			},
 		},
