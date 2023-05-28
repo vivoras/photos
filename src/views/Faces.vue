@@ -59,7 +59,7 @@
 </template>
 
 <script>
-import AccountBoxMultipleOutline from 'vue-material-design-icons/AccountBoxMultipleOutline'
+import AccountBoxMultipleOutline from 'vue-material-design-icons/AccountBoxMultipleOutline.vue'
 
 import { NcEmptyContent, NcLoadingIcon } from '@nextcloud/vue'
 
