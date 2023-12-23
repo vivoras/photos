@@ -34,7 +34,7 @@
 		"sabre/dav": "^4.2.1",
 		"nextcloud/ocp": "dev-master",
 		"psalm/phar": "^5.17",
-		"symfony/console": "5.4.24"
+		"symfony/console": "6.0.19"
 	},
 	"require": {
 		"hexogen/kdtree": "^0.2.5"
